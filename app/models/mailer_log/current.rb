@@ -6,5 +6,7 @@ module MailerLog
   # between requests and is safe for multi-threaded servers.
   class Current < ActiveSupport::CurrentAttributes
     attribute :email_data
+    # Set by process.action_mailer notification before interceptor runs
+    attribute :mailer_action, :mailer_class
   end
 end

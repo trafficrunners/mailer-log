@@ -14,6 +14,15 @@ module MailerLog
       end
     end
 
+    # Subscribe to process.action_mailer to capture mailer action before delivery
+    initializer 'mailer_log.notifications' do
+      ActiveSupport::Notifications.subscribe('process.action_mailer') do |*args|
+        event = ActiveSupport::Notifications::Event.new(*args)
+        MailerLog::Current.mailer_action = event.payload[:action]
+        MailerLog::Current.mailer_class = event.payload[:mailer]
+      end
+    end
+
     config.generators do |g|
       g.test_framework :rspec
       g.fixture_replacement :factory_bot
