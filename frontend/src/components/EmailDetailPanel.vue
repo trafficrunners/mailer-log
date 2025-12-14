@@ -19,34 +19,42 @@
     <div v-else-if="email" class="panel-body">
       <!-- Meta info -->
       <div class="meta-section">
-        <div class="meta-grid">
-          <div class="meta-item">
-            <span class="meta-label">From</span>
-            <code class="meta-value">{{ email.from_address }}</code>
+        <div class="meta-layout">
+          <!-- Left: From/To stacked vertically -->
+          <div class="meta-addresses">
+            <div class="address-row">
+              <span class="address-label">From</span>
+              <code
+                class="address-value"
+                :title="email.from_address"
+              >{{ email.from_address }}</code>
+            </div>
+            <div class="address-row">
+              <span class="address-label">To</span>
+              <code
+                class="address-value"
+                :title="email.to_addresses?.join(', ')"
+              >{{ email.to_addresses?.join(', ') }}</code>
+            </div>
+            <div v-if="email.cc_addresses?.length" class="address-row">
+              <span class="address-label">CC</span>
+              <code
+                class="address-value"
+                :title="email.cc_addresses.join(', ')"
+              >{{ email.cc_addresses.join(', ') }}</code>
+            </div>
           </div>
-          <div class="meta-item">
-            <span class="meta-label">To</span>
-            <code class="meta-value">{{ email.to_addresses?.join(', ') }}</code>
-          </div>
-          <div v-if="email.cc_addresses?.length" class="meta-item">
-            <span class="meta-label">CC</span>
-            <code class="meta-value">{{ email.cc_addresses.join(', ') }}</code>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Mailer</span>
-            <code class="meta-value">{{ email.mailer_class }}#{{ email.mailer_action }}</code>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Sent</span>
-            <span class="meta-value">{{ formatDate(email.created_at) }}</span>
-          </div>
-          <div v-if="email.delivered_at" class="meta-item">
-            <span class="meta-label">Delivered</span>
-            <span class="meta-value">{{ formatDate(email.delivered_at) }}</span>
-          </div>
-          <div v-if="email.opened_at" class="meta-item">
-            <span class="meta-label">Opened</span>
-            <span class="meta-value">{{ formatDate(email.opened_at) }}</span>
+
+          <!-- Right: Mailer & Date -->
+          <div class="meta-info">
+            <div class="info-item">
+              <span class="info-label">Mailer</span>
+              <code class="info-value">{{ email.mailer_class }}#{{ email.mailer_action }}</code>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Sent</span>
+              <span class="info-value">{{ formatDate(email.created_at) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -261,36 +269,76 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.meta-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.5rem 1rem;
+.meta-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.meta-item {
+/* Left: From/To addresses stacked */
+.meta-addresses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.address-row {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
   font-size: 0.8125rem;
 }
 
-.meta-label {
+.address-label {
   color: #6b7280;
   flex-shrink: 0;
-  min-width: 60px;
+  min-width: 32px;
 }
 
-.meta-value {
+.address-value {
   color: #111827;
+  font-size: 0.75rem;
+  background: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
+  cursor: default;
 }
 
-code.meta-value {
+/* Right: Mailer info & date */
+.meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.info-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.info-label {
+  color: #6b7280;
+}
+
+.info-value {
+  color: #111827;
+}
+
+code.info-value {
   font-size: 0.75rem;
   background: #f3f4f6;
-  padding: 0.125rem 0.25rem;
+  padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
 }
 
