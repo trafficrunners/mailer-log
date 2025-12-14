@@ -16,29 +16,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout mailer_log
                 checkout scm
-
-                // Checkout gmbmanager as sibling (required for running specs)
-                dir('../gmbmanager') {
-                    git branch: 'master',
-                        credentialsId: 'httplab-jenkins-key',
-                        url: 'git@github.com:trafficrunners/gmbmanager.git'
-                }
-            }
-        }
-
-        stage('Setup Host App') {
-            steps {
-                dir('../gmbmanager') {
-                    sh '''
-                        bundle config set --local path vendor/bundle
-                        bundle config set --local without 'development'
-                        bundle install --jobs 4 --retry 3
-                    '''
-
-                    sh 'bundle exec rails db:test:prepare'
-                }
             }
         }
 
@@ -70,16 +48,22 @@ pipeline {
             }
         }
 
+        stage('Setup Database') {
+            steps {
+                dir('spec/dummy') {
+                    sh 'bundle exec rake db:create db:migrate'
+                }
+            }
+        }
+
         stage('Run Tests') {
             steps {
-                dir('../gmbmanager') {
-                    sh '''
-                        bundle exec rspec ../mailer_log/spec \
-                            --format progress \
-                            --format RspecJunitFormatter \
-                            --out ../mailer_log/tmp/rspec_results.xml
-                    '''
-                }
+                sh '''
+                    bundle exec rspec spec \
+                        --format progress \
+                        --format RspecJunitFormatter \
+                        --out tmp/rspec_results.xml
+                '''
             }
             post {
                 always {

@@ -1,0 +1,5 @@
+test:
+  adapter: postgresql
+  database: mailer_log_test
+  host: localhost
+  pool: 5

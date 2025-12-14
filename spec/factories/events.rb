@@ -9,7 +9,7 @@ FactoryBot.define do
     sequence(:recipient) { |n| "user-#{n}@example.com" }
     ip_address { '192.168.1.1' }
     user_agent { 'Mozilla/5.0' }
-    raw_data { { 'event' => 'delivered', 'timestamp' => Time.current.to_i } }
+    raw_payload { { 'event' => 'delivered', 'timestamp' => Time.current.to_i } }
 
     trait :opened do
       event_type { 'opened' }

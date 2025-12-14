@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.files = Dir['{app,config,db,lib}/**/*', 'README.md']
   s.require_paths = ['lib']
 
-  s.required_ruby_version = '>= 3.4'
+  s.required_ruby_version = '>= 3.0'
 
   s.add_dependency 'has_scope'
   s.add_dependency 'kaminari'
