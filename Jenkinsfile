@@ -30,8 +30,8 @@ pipeline {
                 sh 'pwd'
                 sh 'ruby --version'
                 sh 'bundle --version'
-                sh 'node --version'
-                sh 'npm --version'
+                sh 'ls -la /home/jenkins/.nvm/versions/node/ 2>/dev/null || echo "nvm node versions not found"'
+                sh 'find /home/jenkins -name node -type f 2>/dev/null | head -3 || echo "node not found"'
                 sh 'git rev-parse --short HEAD'
                 sh 'echo "========================="'
             }
