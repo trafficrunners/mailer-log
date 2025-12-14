@@ -24,13 +24,17 @@ pipeline {
 
         stage('Environment Check') {
             steps {
-                sh 'echo "=== Finding tools ==="'
-                sh 'find /home/jenkins -name ruby -type f 2>/dev/null | head -5 || echo "ruby not found in /home/jenkins"'
-                sh 'find /usr -name ruby -type f 2>/dev/null | head -5 || echo "ruby not found in /usr"'
-                sh 'ls -la /home/jenkins/.rbenv/shims/ 2>/dev/null | head -10 || echo "rbenv shims not found"'
-                sh 'echo "RBENV_ROOT=$RBENV_ROOT"'
-                sh 'cat /etc/environment 2>/dev/null || echo "no /etc/environment"'
-                sh 'echo "=== Current PATH: $PATH ==="'
+                withEnv(['PATH=/usr/local/bin:/usr/bin:/bin']) {
+                    sh 'echo "=== Finding tools ==="'
+                    sh 'find /home/jenkins -name ruby -type f 2>/dev/null | head -5 || echo "ruby not found in /home/jenkins"'
+                    sh 'find /usr -name ruby -type f 2>/dev/null | head -5 || echo "ruby not found in /usr"'
+                    sh 'ls -la /home/jenkins/.rbenv/shims/ 2>/dev/null | head -10 || echo "rbenv shims not found"'
+                    sh 'ls -la /var/lib/jenkins/.rbenv/shims/ 2>/dev/null | head -10 || echo "var rbenv shims not found"'
+                    sh 'echo "RBENV_ROOT=$RBENV_ROOT"'
+                    sh 'cat /etc/environment 2>/dev/null || echo "no /etc/environment"'
+                    sh 'cat ~/.bashrc 2>/dev/null | grep -E "(rbenv|PATH)" | head -10 || echo "no rbenv in bashrc"'
+                    sh 'echo "=== Current PATH: $PATH ==="'
+                }
             }
         }
 
