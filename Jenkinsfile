@@ -11,42 +11,56 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         timeout(time: 30, unit: 'MINUTES')
         disableConcurrentBuilds()
-        timestamps()
-        ansiColor('xterm')
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh 'echo "Checked out commit: $(git rev-parse HEAD)"'
+                script {
+                    echo "Workspace: ${env.WORKSPACE}"
+                    echo "Node: ${env.NODE_NAME}"
+                    echo "Commit: ${sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()}"
+                }
             }
         }
 
-        stage('Install Dependencies') {
-            parallel {
-                stage('Ruby') {
-                    steps {
-                        sh '''
-                            set -ex
-                            ruby --version
-                            bundle --version
-                            bundle config set --local path vendor/bundle
-                            bundle install --jobs 4 --retry 3
-                        '''
-                    }
-                }
-                stage('Node') {
-                    steps {
-                        dir('frontend') {
-                            sh '''
-                                set -ex
-                                node --version
-                                npm --version
-                                npm ci
-                            '''
-                        }
-                    }
+        stage('Environment Check') {
+            steps {
+                sh '''#!/bin/bash
+                    echo "=== Environment Check ==="
+                    echo "User: $(whoami)"
+                    echo "PWD: $(pwd)"
+                    echo "Ruby: $(ruby --version 2>&1 || echo 'not found')"
+                    echo "Bundle: $(bundle --version 2>&1 || echo 'not found')"
+                    echo "Node: $(node --version 2>&1 || echo 'not found')"
+                    echo "NPM: $(npm --version 2>&1 || echo 'not found')"
+                    echo "========================="
+                '''
+            }
+        }
+
+        stage('Install Ruby Dependencies') {
+            steps {
+                sh '''#!/bin/bash
+                    set -e
+                    echo "Installing Ruby dependencies..."
+                    bundle config set --local path vendor/bundle
+                    bundle install --jobs 4 --retry 3
+                    echo "Ruby dependencies installed."
+                '''
+            }
+        }
+
+        stage('Install Node Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh '''#!/bin/bash
+                        set -e
+                        echo "Installing Node dependencies..."
+                        npm ci
+                        echo "Node dependencies installed."
+                    '''
                 }
             }
         }
@@ -54,9 +68,11 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    sh '''
-                        set -ex
+                    sh '''#!/bin/bash
+                        set -e
+                        echo "Building frontend..."
                         npm run build
+                        echo "Frontend built."
                     '''
                 }
             }
@@ -65,9 +81,11 @@ pipeline {
         stage('Setup Database') {
             steps {
                 dir('spec/dummy') {
-                    sh '''
-                        set -ex
-                        bundle exec rake db:create db:migrate
+                    sh '''#!/bin/bash
+                        set -e
+                        echo "Setting up database..."
+                        bundle exec rake db:create db:migrate || bundle exec rake db:migrate
+                        echo "Database ready."
                     '''
                 }
             }
@@ -75,12 +93,14 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    set -ex
+                sh '''#!/bin/bash
+                    set -e
+                    echo "Running tests..."
                     bundle exec rspec spec \
                         --format documentation \
                         --format RspecJunitFormatter \
                         --out tmp/rspec_results.xml
+                    echo "Tests completed."
                 '''
             }
             post {
@@ -97,6 +117,7 @@ pipeline {
         }
         failure {
             echo 'Build failed!'
+            sh 'echo "Failed at stage: ${STAGE_NAME:-unknown}" || true'
         }
         cleanup {
             deleteDir()
