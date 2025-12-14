@@ -3,14 +3,14 @@
 require_relative 'lib/mailer_log/version'
 
 Gem::Specification.new do |s|
-  s.name = 'mailer_log'
+  s.name = 'mailer-log'
   s.version = MailerLog::VERSION
   s.authors = ['TrafficRunners']
   s.email = ['team@localviking.com']
   s.summary = 'Rails engine for logging outgoing emails with Mailgun webhook integration'
   s.description = 'A Rails engine that captures all outgoing emails, stores them in PostgreSQL, ' \
                   'provides a Vue.js admin UI for browsing emails, and tracks delivery events via Mailgun webhooks.'
-  s.homepage = 'https://github.com/trafficrunners/mailer_log'
+  s.homepage = 'https://github.com/trafficrunners/mailer-log'
   s.license = 'MIT'
 
   s.metadata = {
