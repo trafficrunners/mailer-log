@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'agent-1' }
+    agent { label 'agent-1 || agent-2 || agent-3' }
 
     environment {
         RAILS_ENV = 'test'
