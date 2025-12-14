@@ -2,15 +2,15 @@
   <div class="email-detail-panel-content">
     <!-- Header -->
     <div class="panel-header">
+      <button @click="$emit('close')" class="back-btn" title="Back to list">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+      </button>
       <div class="header-content">
         <StatusBadge :status="email?.status" />
         <h2 class="panel-title">{{ email?.subject || '(no subject)' }}</h2>
       </div>
-      <button @click="$emit('close')" class="close-btn" title="Close">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
     </div>
 
     <div v-if="loading" class="loading-state">Loading...</div>
@@ -45,15 +45,15 @@
             </div>
           </div>
 
-          <!-- Right: Mailer & Date -->
+          <!-- Right: Date & Mailer -->
           <div class="meta-info">
-            <div class="info-item">
-              <span class="info-label">Mailer</span>
-              <code class="info-value">{{ email.mailer_class }}#{{ email.mailer_action }}</code>
-            </div>
             <div class="info-item">
               <span class="info-label">Sent</span>
               <span class="info-value">{{ formatDate(email.created_at) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Mailer</span>
+              <code class="info-value">{{ email.mailer_class }}#{{ email.mailer_action }}</code>
             </div>
           </div>
         </div>
@@ -201,9 +201,8 @@ onMounted(() => {
 /* Header */
 .panel-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
@@ -214,6 +213,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+  flex: 1;
 }
 
 .panel-title {
@@ -226,8 +226,8 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.close-btn {
-  padding: 0.25rem;
+.back-btn {
+  padding: 0.375rem;
   color: #6b7280;
   background: none;
   border: none;
@@ -236,7 +236,7 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.close-btn:hover {
+.back-btn:hover {
   color: #374151;
   background: #f3f4f6;
 }

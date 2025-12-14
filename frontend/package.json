@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tanstack/vue-table": "^8.21.3",
+    "@vuepic/vue-datepicker": "^12.1.0",
     "@vueuse/core": "^10.7.0",
     "vue": "^3.4.0",
     "vue-router": "^4.2.0"

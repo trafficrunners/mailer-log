@@ -202,25 +202,42 @@ cleanup_mailer_log:
 
 The admin UI is built with Vue 3 + Vite + Tailwind CSS.
 
-### Development Mode
+### Development Mode (with hot-reload)
 
-For hot-reload during development:
+**Important:** The dev server must be run from the gem source directory, not from your Rails app. If you're using the gem from RubyGems, you need to clone the repository first.
 
 ```bash
-# Terminal 1: Start Rails server
+# 1. Clone the gem repository (if using from RubyGems)
+git clone https://github.com/trafficrunners/mailer-log.git
+cd mailer-log/frontend
+
+# 2. Install dependencies
+npm install
+
+# 3. Start Rails server in your app (Terminal 1)
+cd /path/to/your/rails/app
 rails server
 
-# Terminal 2: Start Vite dev server
-cd path/to/mailer_log/frontend
-npm run dev
+# 4. Start Vite dev server with overrides (Terminal 2)
+cd /path/to/mailer-log/frontend
+MAILER_LOG_OVERRIDES_PATH=/path/to/your/app/javascript/mailer_log_overrides npm run dev
 ```
 
-The Vue app will automatically use the Vite dev server at `http://localhost:5173` when assets are not built.
+The Vite dev server runs at `http://localhost:5173` and proxies API requests to Rails at `http://localhost:3000`.
+
+**Note:** The rake task `mailer_log:dev_server` only works when running from gem source, not when using the gem from RubyGems.
 
 ### Building for Production
 
+Build the frontend with optional component overrides:
+
 ```bash
-rake mailer_log:build_frontend
+# Without overrides
+cd /path/to/mailer-log/frontend
+npm run build
+
+# With overrides (e.g., custom navbar)
+MAILER_LOG_OVERRIDES_PATH=/path/to/your/overrides npm run build
 ```
 
 Built assets are stored in `public/mailer_log/assets/`.

@@ -50,21 +50,12 @@
               <option v-for="status in statuses" :key="status" :value="status">{{ status }}</option>
             </select>
           </div>
-          <div class="date-filters-group">
+          <div class="date-filter-cell">
             <label class="filter-label">Date Range</label>
-            <div class="date-presets">
-              <button
-                v-for="preset in datePresets"
-                :key="preset.key"
-                @click="applyDatePreset(preset.key)"
-                :class="['preset-btn', { active: activeDatePreset === preset.key }]"
-              >{{ preset.label }}</button>
-            </div>
-            <div class="date-inputs">
-              <input v-model="filters.date_from" type="date" class="filter-input" placeholder="From">
-              <span class="date-separator">—</span>
-              <input v-model="filters.date_to" type="date" class="filter-input" placeholder="To">
-            </div>
+            <DateRangePicker
+              v-model:date-from="filters.date_from"
+              v-model:date-to="filters.date_to"
+            />
           </div>
           <div class="filter-actions">
             <button @click="applyFilters" class="btn-primary">Apply</button>
@@ -159,6 +150,7 @@ import {
 import { fetchEmails, fetchMailers } from '../api/emails'
 import StatusBadge from '../components/StatusBadge.vue'
 import EmailDetailPanel from '../components/EmailDetailPanel.vue'
+import DateRangePicker from '../components/DateRangePicker.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -174,16 +166,6 @@ const showFilters = useLocalStorage('mailer-log-filters-visible', true)
 const sorting = ref([{ id: 'created_at', desc: true }])
 
 const statuses = ['pending', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained']
-
-const datePresets = [
-  { key: 'today', label: 'Today' },
-  { key: 'this_week', label: 'This week' },
-  { key: 'last_week', label: 'Last week' },
-  { key: 'this_month', label: 'This month' },
-  { key: 'last_month', label: 'Last month' }
-]
-
-const activeDatePreset = ref(null)
 
 const filters = reactive({
   recipient: '',
@@ -296,61 +278,9 @@ function applyFilters() {
 
 function clearFilters() {
   Object.keys(filters).forEach(key => { filters[key] = '' })
-  activeDatePreset.value = null
   currentPage.value = 1
   updateUrl()
   loadEmails()
-}
-
-function applyDatePreset(preset) {
-  const today = new Date()
-  let from, to
-
-  switch (preset) {
-    case 'today':
-      from = to = formatDateForInput(today)
-      break
-    case 'this_week': {
-      const dayOfWeek = today.getDay()
-      const monday = new Date(today)
-      monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
-      from = formatDateForInput(monday)
-      to = formatDateForInput(today)
-      break
-    }
-    case 'last_week': {
-      const dayOfWeek = today.getDay()
-      const lastMonday = new Date(today)
-      lastMonday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) - 7)
-      const lastSunday = new Date(lastMonday)
-      lastSunday.setDate(lastMonday.getDate() + 6)
-      from = formatDateForInput(lastMonday)
-      to = formatDateForInput(lastSunday)
-      break
-    }
-    case 'this_month': {
-      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
-      from = formatDateForInput(firstDay)
-      to = formatDateForInput(today)
-      break
-    }
-    case 'last_month': {
-      const firstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-      const lastDay = new Date(today.getFullYear(), today.getMonth(), 0)
-      from = formatDateForInput(firstDay)
-      to = formatDateForInput(lastDay)
-      break
-    }
-  }
-
-  filters.date_from = from
-  filters.date_to = to
-  activeDatePreset.value = preset
-  applyFilters()
-}
-
-function formatDateForInput(date) {
-  return date.toISOString().split('T')[0]
 }
 
 function goToPage(page) {
@@ -438,10 +368,20 @@ onMounted(() => {
 }
 
 .filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   padding-top: 0.75rem;
+}
+
+.filters-grid > div {
+  flex: 1;
+  min-width: 120px;
+}
+
+.filters-grid > .date-filter-cell {
+  flex: 1.5;
+  min-width: 180px;
 }
 
 .filter-label {
@@ -464,55 +404,6 @@ onMounted(() => {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-/* Date filters */
-.date-filters-group {
-  grid-column: span 2;
-}
-
-.date-presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-bottom: 0.5rem;
-}
-
-.preset-btn {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.preset-btn:hover {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.preset-btn.active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: white;
-}
-
-.date-inputs {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.date-inputs .filter-input {
-  flex: 1;
-}
-
-.date-separator {
-  color: #9ca3af;
-  font-size: 0.875rem;
 }
 
 .filter-actions {
