@@ -1,4 +1,4 @@
-<% set_meta_tags title: ['Admin', 'Email Log', @email.subject.presence || 'Email Details'] %>
+<% set_meta_tags title: ['Admin', 'Email Log', @email.subject.presence || 'Email Details'] if respond_to?(:set_meta_tags) %>
 
 <div class="mb-3">
   <%= link_to mailer_log_engine.admin_emails_path, class: 'btn btn-outline-secondary btn-sm' do %>

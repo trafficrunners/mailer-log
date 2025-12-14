@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe MailerLog::MailObserver do
   let(:message) { Mail.new }
@@ -133,7 +133,7 @@ RSpec.describe MailerLog::MailObserver do
 
     context 'with call stack' do
       before do
-        interceptor_data[:call_stack] = "/app/controllers/users_controller.rb:25\n/app/services/mailer_service.rb:10"
+        interceptor_data[:call_stack] = ['/app/controllers/users_controller.rb:25', '/app/services/mailer_service.rb:10']
         MailerLog::Current.email_data = interceptor_data
       end
 
@@ -141,7 +141,7 @@ RSpec.describe MailerLog::MailObserver do
         described_class.delivered_email(message)
 
         email = MailerLog::Email.last
-        expect(email.call_stack).to include('users_controller.rb')
+        expect(email.call_stack).to include('/app/controllers/users_controller.rb:25')
       end
     end
   end

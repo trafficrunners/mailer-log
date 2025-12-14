@@ -91,7 +91,7 @@ module MailerLog
         recipient: event_data['recipient'],
         ip_address: event_data['ip'],
         user_agent: event_data.dig('client-info', 'user-agent'),
-        raw_data: event_data.to_unsafe_h
+        raw_payload: event_data.to_unsafe_h
       )
     end
 

@@ -6,6 +6,7 @@ require_relative 'dummy/config/environment'
 
 require 'rspec/rails'
 require 'factory_bot_rails'
+require 'mail'
 
 # Load support files
 Dir[File.join(__dir__, 'support', '**', '*.rb')].each { |f| require f }
