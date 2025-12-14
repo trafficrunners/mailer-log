@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+MailerLog.configure do |config|
+  # Email retention period (default: 1 year)
+  # Emails older than this will be deleted by CleanupJob
+  config.retention_period = 1.year
+
+  # Mailgun webhook signing key for signature verification
+  # Get it from: Mailgun Dashboard -> Sending -> Webhooks -> HTTP webhook signing key
+  config.webhook_signing_key = ENV['MAILGUN_WEBHOOK_SIGNING_KEY']
+
+  # Capture call stack to see where emails were triggered from (default: true)
+  config.capture_call_stack = Rails.env.development? || Rails.env.staging?
+  config.call_stack_depth = 20
+
+  # Layout for admin views (default: 'application')
+  config.admin_layout = 'application'
+
+  # Records per page in admin UI (default: 25)
+  config.per_page = 25
+
+  # Optional: Additional authentication for admin UI
+  # By default, engine inherits from your AdminsController
+  # config.authenticate_with do |controller|
+  #   controller.send(:require_super_admin!)
+  # end
+
+  # Optional: Resolver for accountable association (e.g., Organization)
+  # config.resolve_accountable do |email_record|
+  #   user = User.find_by(email: email_record.to_addresses&.first)
+  #   user&.organization
+  # end
+end

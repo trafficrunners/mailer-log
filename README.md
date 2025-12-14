@@ -24,34 +24,32 @@ gem 'mailer_log', path: '../mailer_log'
 # gem 'mailer_log', path: 'engines/mailer_log'
 ```
 
-### 2. Run bundle install
+### 2. Run install generator
 
 ```bash
 bundle install
-```
-
-### 3. Run migrations
-
-```bash
+rails generate mailer_log:install
 rails db:migrate
 ```
 
-### 4. Add routes
+This will:
+- Create `config/initializers/mailer_log.rb` with configuration
+- Copy migration to `db/migrate/`
+
+### 3. Add routes
 
 ```ruby
 # config/routes.rb
 Rails.application.routes.draw do
-  # In the admin or protected area section
-  namespace :admin do
-    mount MailerLog::Engine, at: '/email_log'
-  end
+  mount MailerLog::Engine, at: '/mailer_log'
 end
 ```
 
-### 5. Create initializer
+### 4. Configure initializer
+
+Edit `config/initializers/mailer_log.rb` to customize settings:
 
 ```ruby
-# config/initializers/mailer_log.rb
 MailerLog.configure do |config|
   # Email retention period (default 1 year)
   config.retention_period = 1.year
@@ -60,29 +58,17 @@ MailerLog.configure do |config|
   config.webhook_signing_key = ENV['MAILGUN_WEBHOOK_SIGNING_KEY']
 
   # Capture call stack (useful for debugging)
-  config.capture_call_stack = true
-  config.call_stack_depth = 20
-
-  # Layout for admin UI (use application layout)
-  config.admin_layout = 'application'
-
-  # Records per page
-  config.per_page = 25
+  config.capture_call_stack = Rails.env.development?
 
   # Optional: Additional authentication for admin UI
-  # By default, the engine inherits from your AdminsController
-  # Use this if you need custom authentication logic
-  config.authenticate_with do |controller|
-    # Example: restrict to super admins only
-    controller.send(:require_super_admin!)
-  end
+  # config.authenticate_with do |controller|
+  #   controller.send(:require_super_admin!)
+  # end
 
-  # Resolver for organization association (optional)
-  config.resolve_accountable do |email_record|
-    # email_record contains: from_address, to_addresses, domain, headers
-    user = User.find_by(email: email_record.to_addresses&.first)
-    user&.organization
-  end
+  # Optional: Resolver for organization association
+  # config.resolve_accountable do |email_record|
+  #   User.find_by(email: email_record.to_addresses&.first)&.organization
+  # end
 end
 ```
 
