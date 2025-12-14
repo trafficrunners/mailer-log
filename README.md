@@ -246,6 +246,45 @@ frontend/
 └── vite.config.js
 ```
 
+### Customizing Components
+
+You can override Vue components (like the navbar) to match your application's style.
+
+1. Create an overrides directory in your host application:
+```bash
+mkdir -p app/javascript/mailer_log_overrides
+```
+
+2. Copy and customize the component:
+```bash
+cp path/to/mailer_log/frontend/src/components/AppNavbar.vue \
+   app/javascript/mailer_log_overrides/AppNavbar.vue
+```
+
+3. Build with the override path:
+```bash
+MAILER_LOG_OVERRIDES_PATH=/path/to/app/javascript/mailer_log_overrides \
+  rake mailer_log:build_frontend
+```
+
+**Overridable components:**
+- `AppNavbar.vue` - Header/navigation bar
+
+Example custom navbar that matches host application style:
+```vue
+<template>
+  <nav class="your-app-navbar">
+    <router-link to="/">Email Log</router-link>
+    <!-- Your custom navigation items -->
+  </nav>
+</template>
+
+<script setup>
+// You can import from @mailer-log/ alias to reuse engine components
+// import StatusBadge from '@mailer-log/components/StatusBadge.vue'
+</script>
+```
+
 ## License
 
 MIT
