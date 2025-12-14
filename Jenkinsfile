@@ -24,47 +24,68 @@ pipeline {
 
         stage('Environment Check') {
             steps {
-                script {
-                    def result = sh(script: 'echo "=== Environment Check ===" && whoami && pwd && ruby --version && bundle --version && node --version && npm --version && git rev-parse --short HEAD && echo "========================="', returnStatus: true)
-                    echo "Environment check completed with status: ${result}"
+                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
+                    sh 'echo "=== Environment Check ==="'
+                    sh 'whoami'
+                    sh 'pwd'
+                    sh 'which ruby || echo "ruby not found"'
+                    sh 'ruby --version || echo "ruby version failed"'
+                    sh 'which bundle || echo "bundle not found"'
+                    sh 'bundle --version || echo "bundle version failed"'
+                    sh 'which node || echo "node not found"'
+                    sh 'node --version || echo "node version failed"'
+                    sh 'which npm || echo "npm not found"'
+                    sh 'npm --version || echo "npm version failed"'
+                    sh 'git rev-parse --short HEAD'
+                    sh 'echo "========================="'
                 }
             }
         }
 
         stage('Install Ruby Dependencies') {
             steps {
-                sh 'bundle config set --local path vendor/bundle'
-                sh 'bundle install --jobs 4 --retry 3'
+                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
+                    sh 'bundle config set --local path vendor/bundle'
+                    sh 'bundle install --jobs 4 --retry 3'
+                }
             }
         }
 
         stage('Install Node Dependencies') {
             steps {
-                dir('frontend') {
-                    sh 'npm ci'
+                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
+                    dir('frontend') {
+                        sh 'npm ci'
+                    }
                 }
             }
         }
 
         stage('Build Frontend') {
             steps {
-                dir('frontend') {
-                    sh 'npm run build'
+                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
+                    dir('frontend') {
+                        sh 'npm run build'
+                    }
                 }
             }
         }
 
         stage('Setup Database') {
             steps {
-                dir('spec/dummy') {
-                    sh 'bundle exec rake db:create db:migrate || bundle exec rake db:migrate'
+                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
+                    dir('spec/dummy') {
+                        sh 'bundle exec rake db:create db:migrate || bundle exec rake db:migrate'
+                    }
                 }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'bundle exec rspec spec --format documentation --format RspecJunitFormatter --out tmp/rspec_results.xml'
+                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
+                    sh 'bundle exec rspec spec --format documentation --format RspecJunitFormatter --out tmp/rspec_results.xml'
+                }
             }
             post {
                 always {
