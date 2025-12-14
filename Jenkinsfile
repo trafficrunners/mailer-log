@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'ruby'
-    }
+    agent any
 
     environment {
         RAILS_ENV = 'test'
@@ -99,7 +97,7 @@ pipeline {
             echo 'Build failed!'
         }
         cleanup {
-            cleanWs()
+            deleteDir()
         }
     }
 }
