@@ -24,21 +24,13 @@ pipeline {
 
         stage('Environment Check') {
             steps {
-                withEnv(['PATH=/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin']) {
-                    sh 'echo "=== Environment Check ==="'
-                    sh 'whoami'
-                    sh 'pwd'
-                    sh 'which ruby || echo "ruby not found"'
-                    sh 'ruby --version || echo "ruby version failed"'
-                    sh 'which bundle || echo "bundle not found"'
-                    sh 'bundle --version || echo "bundle version failed"'
-                    sh 'which node || echo "node not found"'
-                    sh 'node --version || echo "node version failed"'
-                    sh 'which npm || echo "npm not found"'
-                    sh 'npm --version || echo "npm version failed"'
-                    sh 'git rev-parse --short HEAD'
-                    sh 'echo "========================="'
-                }
+                sh 'echo "=== Finding tools ==="'
+                sh 'find /home/jenkins -name ruby -type f 2>/dev/null | head -5 || echo "ruby not found in /home/jenkins"'
+                sh 'find /usr -name ruby -type f 2>/dev/null | head -5 || echo "ruby not found in /usr"'
+                sh 'ls -la /home/jenkins/.rbenv/shims/ 2>/dev/null | head -10 || echo "rbenv shims not found"'
+                sh 'echo "RBENV_ROOT=$RBENV_ROOT"'
+                sh 'cat /etc/environment 2>/dev/null || echo "no /etc/environment"'
+                sh 'echo "=== Current PATH: $PATH ==="'
             }
         }
 
