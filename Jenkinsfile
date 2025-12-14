@@ -5,7 +5,8 @@ pipeline {
         RAILS_ENV = 'test'
         BUNDLE_PATH = 'vendor/bundle'
         NODE_ENV = 'test'
-        PATH = '/home/jenkins/.rbenv/shims:/home/jenkins/.rbenv/bin:/home/jenkins/.nvm/versions/node/v22.15.0/bin:/usr/local/bin:/usr/bin:/bin'
+        PATH = '/home/jenkins/.rbenv/shims:/home/jenkins/.rbenv/bin:/home/jenkins/.nvm/versions/node/v20.18.0/bin:/usr/local/bin:/usr/bin:/bin'
+        NVM_DIR = '/home/jenkins/.nvm'
     }
 
     options {
@@ -20,6 +21,12 @@ pipeline {
                 checkout scm
                 echo "Workspace: ${env.WORKSPACE}"
                 echo "Node: ${env.NODE_NAME}"
+            }
+        }
+
+        stage('Setup Node') {
+            steps {
+                sh 'bash -c "source $NVM_DIR/nvm.sh && nvm install 20 && nvm use 20"'
             }
         }
 
