@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'agent-2' }
+    agent any
 
     environment {
         RAILS_ENV = 'test'
