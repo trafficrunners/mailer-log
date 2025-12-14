@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Log</title>
+  <% if (css = mailer_log_css_entry) %>
+    <link rel="stylesheet" href="/admin/email_log/<%= css %>">
+  <% else %>
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+  <% end %>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div id="app"></div>
+  <% if (js = mailer_log_js_entry) %>
+    <script type="module" src="/admin/email_log/<%= js %>"></script>
+  <% else %>
+    <script type="module" src="http://localhost:5173/admin/email_log/assets/src/main.js"></script>
+  <% end %>
+</body>
+</html>

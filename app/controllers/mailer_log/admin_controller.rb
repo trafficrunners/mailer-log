@@ -15,7 +15,8 @@ module MailerLog
     # Override url_options to prevent main app routes from being prefixed
     # with the engine's mount path
     def url_options
-      return super unless request.env['SCRIPT_NAME']&.include?('mailer_log')
+      script_name = request.env['SCRIPT_NAME']
+      return super unless script_name&.include?('mailer_log') || script_name&.include?('email_log')
 
       super.merge(script_name: '')
     end

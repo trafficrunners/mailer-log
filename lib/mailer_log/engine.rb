@@ -19,5 +19,10 @@ module MailerLog
       g.fixture_replacement :factory_bot
       g.factory_bot dir: 'spec/factories'
     end
+
+    # Load rake tasks
+    rake_tasks do
+      load MailerLog::Engine.root.join('lib', 'tasks', 'mailer_log.rake')
+    end
   end
 end

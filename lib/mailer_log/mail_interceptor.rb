@@ -33,11 +33,23 @@ module MailerLog
       private
 
       def extract_mailer_class(message)
-        message.delivery_handler&.class&.name || message['X-Mailer']&.to_s || 'Unknown'
+        handler = message.delivery_handler
+        return message['X-Mailer']&.to_s || 'Unknown' unless handler
+
+        handler.is_a?(Class) ? handler.name : handler.class.name
       end
 
       def extract_mailer_action(message)
-        message.delivery_handler&.action_name&.to_s || 'unknown'
+        handler = message.delivery_handler
+        return 'unknown' unless handler
+
+        if handler.respond_to?(:action_name)
+          handler.action_name.to_s
+        elsif message['X-Mailer-Action']
+          message['X-Mailer-Action'].to_s
+        else
+          'unknown'
+        end
       end
 
       def extract_html_body(message)

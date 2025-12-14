@@ -7,8 +7,8 @@ Rails engine for logging all outgoing emails with Mailgun webhook integration.
 - Automatic capture of all outgoing emails (body, headers, mailer class/action)
 - Call stack saving for debugging (shows where the email was triggered from)
 - Mailgun webhook integration for delivery status tracking
-- Admin UI with filtering and search
-- Email preview in iframe
+- Modern Vue 3 + Tailwind CSS admin UI
+- Email preview in sandboxed iframe
 - Polymorphic association with Organization/Account for filtering by organization
 - Configurable retention period with automatic cleanup
 
@@ -45,7 +45,21 @@ Rails.application.routes.draw do
 end
 ```
 
-### 4. Configure initializer
+### 4. Build the frontend (if needed)
+
+The engine includes pre-built Vue.js frontend assets. If you need to rebuild:
+
+```bash
+# From host application
+rake mailer_log:build_frontend
+
+# Or directly
+cd path/to/mailer_log/frontend
+npm install
+npm run build
+```
+
+### 5. Configure initializer
 
 Edit `config/initializers/mailer_log.rb` to customize settings:
 
@@ -187,6 +201,50 @@ cleanup_mailer_log:
 1. Check that `message_id` is being saved correctly
 2. Check that header `X-Mailer-Log-Tracking-ID` is passed to Mailgun
 3. Webhook may arrive before email is saved — retry mechanism is used
+
+## Frontend Development
+
+The admin UI is built with Vue 3 + Vite + Tailwind CSS.
+
+### Development Mode
+
+For hot-reload during development:
+
+```bash
+# Terminal 1: Start Rails server
+rails server
+
+# Terminal 2: Start Vite dev server
+cd path/to/mailer_log/frontend
+npm run dev
+```
+
+The Vue app will automatically use the Vite dev server at `http://localhost:5173` when assets are not built.
+
+### Building for Production
+
+```bash
+rake mailer_log:build_frontend
+```
+
+Built assets are stored in `public/mailer_log/assets/`.
+
+### Frontend Structure
+
+```
+frontend/
+├── src/
+│   ├── api/           # API client functions
+│   ├── assets/        # CSS and static assets
+│   ├── components/    # Reusable Vue components
+│   ├── views/         # Page components
+│   ├── App.vue        # Root component
+│   └── main.js        # Entry point
+├── index.html         # HTML template
+├── package.json
+├── tailwind.config.js
+└── vite.config.js
+```
 
 ## License
 
