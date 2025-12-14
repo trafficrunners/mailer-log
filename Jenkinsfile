@@ -5,7 +5,7 @@ pipeline {
         RAILS_ENV = 'test'
         BUNDLE_PATH = 'vendor/bundle'
         NODE_ENV = 'test'
-        PATH = '/home/jenkins/.rbenv/shims:/home/jenkins/.rbenv/bin:/home/jenkins/.nvm/versions/node/v20.18.0/bin:/usr/local/bin:/usr/bin:/bin'
+        PATH = '/home/jenkins/.rbenv/shims:/home/jenkins/.rbenv/bin:/home/jenkins/.nvm/versions/node/v22.15.0/bin:/usr/local/bin:/usr/bin:/bin'
     }
 
     options {
@@ -30,8 +30,8 @@ pipeline {
                 sh 'pwd'
                 sh 'ruby --version'
                 sh 'bundle --version'
-                sh 'ls -la /home/jenkins/.nvm/versions/node/ 2>/dev/null || echo "nvm node versions not found"'
-                sh 'find /home/jenkins -name node -type f 2>/dev/null | head -3 || echo "node not found"'
+                sh 'node --version'
+                sh 'npm --version'
                 sh 'git rev-parse --short HEAD'
                 sh 'echo "========================="'
             }
