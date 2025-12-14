@@ -5,7 +5,6 @@ pipeline {
         RAILS_ENV = 'test'
         BUNDLE_PATH = 'vendor/bundle'
         NODE_ENV = 'test'
-        PATH = '/var/lib/jenkins/.rbenv/shims:/var/lib/jenkins/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/pgsql-12/bin'
     }
 
     options {
