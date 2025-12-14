@@ -24,15 +24,10 @@ pipeline {
 
         stage('Environment Check') {
             steps {
-                sh 'echo "=== Environment Check ==="'
-                sh 'whoami'
-                sh 'pwd'
-                sh 'ruby --version || echo "ruby not found"'
-                sh 'bundle --version || echo "bundle not found"'
-                sh 'node --version || echo "node not found"'
-                sh 'npm --version || echo "npm not found"'
-                sh 'git rev-parse --short HEAD'
-                sh 'echo "========================="'
+                script {
+                    def result = sh(script: 'echo "=== Environment Check ===" && whoami && pwd && ruby --version && bundle --version && node --version && npm --version && git rev-parse --short HEAD && echo "========================="', returnStatus: true)
+                    echo "Environment check completed with status: ${result}"
+                }
             }
         }
 
