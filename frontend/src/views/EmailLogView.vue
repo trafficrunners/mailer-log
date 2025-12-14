@@ -128,9 +128,11 @@
       </div>
 
       <!-- Right: Email detail -->
-      <div v-if="selectedEmailId" class="email-detail-panel">
-        <EmailDetailPanel :id="selectedEmailId" @close="selectedEmailId = null" />
-      </div>
+      <Transition name="slide">
+        <div v-if="selectedEmailId" class="email-detail-panel">
+          <EmailDetailPanel :id="selectedEmailId" @close="selectedEmailId = null" />
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -138,6 +140,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useLocalStorage } from '@vueuse/core'
 import {
   useVueTable,
   createColumnHelper,
@@ -159,7 +162,7 @@ const totalCount = ref(0)
 const totalPages = ref(1)
 const currentPage = ref(1)
 const selectedEmailId = ref(null)
-const showFilters = ref(false)
+const showFilters = useLocalStorage('mailer-log-filters-visible', true)
 const sorting = ref([{ id: 'created_at', desc: true }])
 
 const statuses = ['pending', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained']
@@ -444,12 +447,12 @@ onMounted(() => {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   flex: 1;
   min-width: 0;
-  transition: flex 0.2s ease;
 }
 
 .email-list-panel.has-selection {
   flex: 0 0 35%;
   max-width: 500px;
+  min-width: 320px;
 }
 
 .list-header {
@@ -615,6 +618,25 @@ onMounted(() => {
   flex-direction: column;
 }
 
+/* Slide transition */
+.slide-enter-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.slide-leave-active {
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .split-container {
@@ -624,10 +646,16 @@ onMounted(() => {
   .email-list-panel.has-selection {
     flex: 0 0 40%;
     max-width: none;
+    min-width: 0;
   }
 
   .email-detail-panel {
     flex: 1;
+  }
+
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: translateY(20px);
   }
 }
 </style>

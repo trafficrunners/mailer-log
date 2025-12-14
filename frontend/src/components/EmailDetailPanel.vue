@@ -69,10 +69,13 @@
           <!-- Preview tab -->
           <div v-if="activeTab === 'preview'" class="preview-content">
             <div v-if="email.html_body" class="html-preview">
+              <div v-if="iframeLoading" class="iframe-loading">Loading preview...</div>
               <iframe
                 :srcdoc="email.html_body"
                 sandbox="allow-same-origin"
                 class="preview-iframe"
+                :class="{ 'is-loading': iframeLoading }"
+                @load="iframeLoading = false"
               />
             </div>
             <pre v-else-if="email.text_body" class="text-preview">{{ email.text_body }}</pre>
@@ -124,6 +127,7 @@ const loading = ref(true)
 const error = ref(null)
 const email = ref(null)
 const activeTab = ref('preview')
+const iframeLoading = ref(true)
 
 const availableTabs = computed(() => {
   const tabs = [{ id: 'preview', label: 'Preview' }]
@@ -170,6 +174,7 @@ async function loadEmail() {
 
 watch(() => props.id, () => {
   activeTab.value = 'preview'
+  iframeLoading.value = true
   loadEmail()
 })
 
@@ -358,12 +363,30 @@ code.meta-value {
 /* Preview */
 .html-preview {
   height: 100%;
+  position: relative;
+}
+
+.iframe-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 0.875rem;
 }
 
 .preview-iframe {
   width: 100%;
   height: 100%;
   border: none;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.preview-iframe.is-loading {
+  opacity: 0;
 }
 
 .text-preview {
