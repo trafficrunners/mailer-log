@@ -17,11 +17,7 @@ Rails engine for logging all outgoing emails with Mailgun webhook integration.
 ### 1. Add to Gemfile
 
 ```ruby
-# For local development (sibling directory)
-gem 'mailer_log', path: '../mailer_log'
-
-# For engines directory
-# gem 'mailer_log', path: 'engines/mailer_log'
+gem 'mailer_log'
 ```
 
 ### 2. Run install generator

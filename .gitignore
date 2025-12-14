@@ -6,3 +6,4 @@ tmp/
 vendor/
 spec/dummy/log/
 spec/dummy/tmp/
+*.gem
