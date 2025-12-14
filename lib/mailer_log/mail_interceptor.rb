@@ -41,15 +41,40 @@ module MailerLog
 
       def extract_mailer_action(message)
         handler = message.delivery_handler
-        return 'unknown' unless handler
+        return extract_action_from_call_stack(handler) || 'unknown' unless handler
 
-        if handler.respond_to?(:action_name)
+        if handler.respond_to?(:action_name) && !handler.is_a?(Class)
           handler.action_name.to_s
         elsif message['X-Mailer-Action']
           message['X-Mailer-Action'].to_s
         else
-          'unknown'
+          # Parse action name from call stack
+          extract_action_from_call_stack(handler) || 'unknown'
         end
+      end
+
+      def extract_action_from_call_stack(handler)
+        return nil unless handler
+
+        mailer_class_name = handler.is_a?(Class) ? handler.name : handler.class.name
+        mailer_file_pattern = mailer_class_name.underscore
+
+        # Look through call stack for the mailer file
+        caller.each do |line|
+          next unless line.include?(mailer_file_pattern) || line.include?('/mailers/')
+
+          # Extract method name from call stack line: "path/file.rb:123:in `method_name'"
+          match = line.match(/in [`']([^']+)'/)
+          next unless match
+
+          method_name = match[1]
+          # Skip Rails internal methods
+          next if %w[mail initialize block].any? { |skip| method_name.include?(skip) }
+
+          return method_name
+        end
+
+        nil
       end
 
       def extract_html_body(message)

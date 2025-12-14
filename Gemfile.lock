@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mailer_log (0.1.0)
+    mailer-log (0.1.1)
       has_scope (~> 0.8)
       kaminari (~> 1.2)
       rails (>= 7.0, < 9.0)
@@ -243,7 +243,7 @@ PLATFORMS
 
 DEPENDENCIES
   factory_bot_rails
-  mailer_log!
+  mailer-log!
   pg
   puma
   rails (~> 7.0)
