@@ -3,12 +3,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import './assets/main.css'
 
-import EmailList from './views/EmailList.vue'
-import EmailDetail from './views/EmailDetail.vue'
+import EmailLogView from './views/EmailLogView.vue'
 
 const routes = [
-  { path: '/', name: 'emails', component: EmailList },
-  { path: '/emails/:id', name: 'email', component: EmailDetail, props: true }
+  { path: '/', name: 'emails', component: EmailLogView }
 ]
 
 const router = createRouter({
