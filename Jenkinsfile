@@ -22,7 +22,7 @@ pipeline {
                 // Checkout gmbmanager as sibling (required for running specs)
                 dir('../gmbmanager') {
                     git branch: 'master',
-                        credentialsId: 'github-credentials',
+                        credentialsId: 'httplab-jenkins-key',
                         url: 'git@github.com:trafficrunners/gmbmanager.git'
                 }
             }
