@@ -1,0 +1,29 @@
+<tr>
+  <td class="text-nowrap">
+    <%= email.created_at.strftime('%Y-%m-%d %H:%M') %>
+  </td>
+  <td>
+    <small class="text-muted"><%= email.mailer_class %></small><br>
+    <code class="small"><%= email.mailer_action %></code>
+  </td>
+  <td class="text-truncate" style="max-width: 200px;">
+    <%= email.to_addresses.join(', ') %>
+  </td>
+  <td class="text-truncate" style="max-width: 250px;">
+    <%= link_to email.subject.presence || '(no subject)', mailer_log_engine.admin_email_path(email) %>
+  </td>
+  <td>
+    <% status_class = case email.status
+       when 'delivered', 'opened', 'clicked' then 'success'
+       when 'bounced', 'complained' then 'danger'
+       when 'sent' then 'info'
+       else 'secondary'
+       end %>
+    <span class="badge badge-<%= status_class %>"><%= email.status %></span>
+  </td>
+  <td class="text-right">
+    <%= link_to mailer_log_engine.admin_email_path(email), class: 'btn btn-sm btn-outline-primary' do %>
+      <i class="far fa-eye"></i>
+    <% end %>
+  </td>
+</tr>
