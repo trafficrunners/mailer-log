@@ -95,3 +95,20 @@ has_scope :by_status, as: :status      # uses param :status
 
 - **English only** for all documentation, comments, and commit messages
 - Code and variable names in English
+
+---
+
+## Git Commits
+
+- **No copyright notices** in commit messages (no "Generated with Claude Code", no "Co-Authored-By")
+- Keep commit messages concise and descriptive
+- Focus on what changed and why
+
+---
+
+## Testing Requirements
+
+- **Always write tests** for new functionality
+- Request specs for API and controller actions
+- Unit specs for complex business logic
+- Run tests before committing to ensure they pass
