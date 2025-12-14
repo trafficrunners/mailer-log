@@ -4,7 +4,7 @@ module MailerLog
   class MailObserver
     class << self
       def delivered_email(message)
-        data = Thread.current[:mailer_log_data]
+        data = MailerLog::Current.email_data
         return unless data
 
         email = MailerLog::Email.new(
@@ -23,7 +23,7 @@ module MailerLog
         Rails.logger.error(e.backtrace.first(5).join("\n"))
         report_error(e)
       ensure
-        Thread.current[:mailer_log_data] = nil
+        MailerLog::Current.reset
       end
 
       private

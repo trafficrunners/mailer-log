@@ -10,7 +10,7 @@ module MailerLog
         message.header['X-Mailer-Log-Tracking-ID'] = tracking_id
 
         # Store data for observer to pick up after delivery
-        Thread.current[:mailer_log_data] = {
+        MailerLog::Current.email_data = {
           tracking_id: tracking_id,
           mailer_class: extract_mailer_class(message),
           mailer_action: extract_mailer_action(message),

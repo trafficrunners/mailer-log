@@ -25,13 +25,13 @@ RSpec.describe MailerLog::MailObserver do
   end
 
   before do
-    Thread.current[:mailer_log_data] = interceptor_data
+    MailerLog::Current.email_data = interceptor_data
     allow(message).to receive(:message_id).and_return(message_id)
     allow(MailerLog.configuration).to receive(:resolve_accountable_proc).and_return(nil)
   end
 
   after do
-    Thread.current[:mailer_log_data] = nil
+    MailerLog::Current.reset
   end
 
   describe '.delivered_email' do
@@ -49,15 +49,15 @@ RSpec.describe MailerLog::MailObserver do
       expect(email.status).to eq('sent')
     end
 
-    it 'clears thread data after processing' do
+    it 'clears CurrentAttributes after processing' do
       described_class.delivered_email(message)
 
-      expect(Thread.current[:mailer_log_data]).to be_nil
+      expect(MailerLog::Current.email_data).to be_nil
     end
 
     context 'when no interceptor data present' do
       before do
-        Thread.current[:mailer_log_data] = nil
+        MailerLog::Current.reset
       end
 
       it 'does not create email record' do
@@ -108,10 +108,10 @@ RSpec.describe MailerLog::MailObserver do
         expect { described_class.delivered_email(message) }.not_to raise_error
       end
 
-      it 'clears thread data even on error' do
+      it 'clears CurrentAttributes even on error' do
         described_class.delivered_email(message)
 
-        expect(Thread.current[:mailer_log_data]).to be_nil
+        expect(MailerLog::Current.email_data).to be_nil
       end
     end
 
@@ -119,7 +119,7 @@ RSpec.describe MailerLog::MailObserver do
       before do
         interceptor_data[:html_body] = '<html><body><h1>Welcome</h1></body></html>'
         interceptor_data[:text_body] = 'Welcome'
-        Thread.current[:mailer_log_data] = interceptor_data
+        MailerLog::Current.email_data = interceptor_data
       end
 
       it 'stores both body types' do
@@ -134,7 +134,7 @@ RSpec.describe MailerLog::MailObserver do
     context 'with call stack' do
       before do
         interceptor_data[:call_stack] = "/app/controllers/users_controller.rb:25\n/app/services/mailer_service.rb:10"
-        Thread.current[:mailer_log_data] = interceptor_data
+        MailerLog::Current.email_data = interceptor_data
       end
 
       it 'stores call stack' do

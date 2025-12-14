@@ -6,7 +6,7 @@ RSpec.describe MailerLog::MailInterceptor do
   let(:message) { Mail.new }
 
   before do
-    Thread.current[:mailer_log_data] = nil
+    MailerLog::Current.reset
 
     message.from = 'sender@example.com'
     message.to = ['recipient@example.com']
@@ -24,10 +24,10 @@ RSpec.describe MailerLog::MailInterceptor do
       expect(message.header['X-Mailer-Log-Tracking-ID'].value).to match(/\A[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}\z/i)
     end
 
-    it 'stores email data in thread local variable' do
+    it 'stores email data in CurrentAttributes' do
       described_class.delivering_email(message)
 
-      data = Thread.current[:mailer_log_data]
+      data = MailerLog::Current.email_data
       expect(data).to be_present
       expect(data[:from_address]).to eq('sender@example.com')
       expect(data[:to_addresses]).to eq(['recipient@example.com'])
@@ -37,7 +37,7 @@ RSpec.describe MailerLog::MailInterceptor do
     it 'stores tracking_id matching header' do
       described_class.delivering_email(message)
 
-      data = Thread.current[:mailer_log_data]
+      data = MailerLog::Current.email_data
       expect(data[:tracking_id]).to eq(message.header['X-Mailer-Log-Tracking-ID'].value)
     end
 
@@ -57,7 +57,7 @@ RSpec.describe MailerLog::MailInterceptor do
       it 'extracts html and text parts' do
         described_class.delivering_email(message)
 
-        data = Thread.current[:mailer_log_data]
+        data = MailerLog::Current.email_data
         expect(data[:html_body]).to eq('<h1>Hello</h1>')
         expect(data[:text_body]).to eq('Hello')
       end
@@ -72,7 +72,7 @@ RSpec.describe MailerLog::MailInterceptor do
       it 'stores cc and bcc addresses' do
         described_class.delivering_email(message)
 
-        data = Thread.current[:mailer_log_data]
+        data = MailerLog::Current.email_data
         expect(data[:cc_addresses]).to eq(['cc@example.com'])
         expect(data[:bcc_addresses]).to eq(['bcc@example.com'])
       end
@@ -86,7 +86,7 @@ RSpec.describe MailerLog::MailInterceptor do
       it 'stores all recipients' do
         described_class.delivering_email(message)
 
-        data = Thread.current[:mailer_log_data]
+        data = MailerLog::Current.email_data
         expect(data[:to_addresses]).to eq(['user1@example.com', 'user2@example.com'])
       end
     end
@@ -100,7 +100,7 @@ RSpec.describe MailerLog::MailInterceptor do
       it 'captures call stack' do
         described_class.delivering_email(message)
 
-        data = Thread.current[:mailer_log_data]
+        data = MailerLog::Current.email_data
         # Call stack should be present but may be empty depending on Rails.root
         expect(data).to have_key(:call_stack)
       end
@@ -126,7 +126,7 @@ RSpec.describe MailerLog::MailInterceptor do
       it 'extracts all headers' do
         described_class.delivering_email(message)
 
-        data = Thread.current[:mailer_log_data]
+        data = MailerLog::Current.email_data
         expect(data[:headers]).to be_a(Hash)
         expect(data[:headers]['X-Custom-Header']).to eq('custom_value')
       end

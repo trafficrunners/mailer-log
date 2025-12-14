@@ -2,12 +2,7 @@
 
 module MailerLog
   module Admin
-    class EmailsController < ::AdminsController
-      prepend HasScope
-
-      # Expose main app routes to views
-      helper Rails.application.routes.url_helpers
-
+    class EmailsController < MailerLog::AdminController
       has_scope :recipient
       has_scope :sender
       has_scope :subject_search
@@ -34,12 +29,6 @@ module MailerLog
         # rubocop:enable Rails/OutputSafety
       end
 
-      private
-
-      def mailer_log_engine
-        MailerLog::Engine.routes.url_helpers
-      end
-      helper_method :mailer_log_engine
     end
   end
 end

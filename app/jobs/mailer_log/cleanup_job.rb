@@ -2,11 +2,11 @@
 
 module MailerLog
   class CleanupJob < ApplicationJob
-    queue_as :low_priority
+    queue_as :default
 
     def perform
-      retention = MailerLog.configuration.retention_period
-      cutoff_date = retention.ago
+      retention_period = MailerLog.configuration.retention_period
+      cutoff_date = retention_period.ago
 
       deleted_count = MailerLog::Email.where('created_at < ?', cutoff_date).delete_all
 

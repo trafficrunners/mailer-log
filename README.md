@@ -17,7 +17,11 @@ Rails engine for logging all outgoing emails with Mailgun webhook integration.
 ### 1. Add to Gemfile
 
 ```ruby
-gem 'mailer_log', path: 'engines/mailer_log'
+# For local development (sibling directory)
+gem 'mailer_log', path: '../mailer_log'
+
+# For engines directory
+# gem 'mailer_log', path: 'engines/mailer_log'
 ```
 
 ### 2. Run bundle install
@@ -65,10 +69,12 @@ MailerLog.configure do |config|
   # Records per page
   config.per_page = 25
 
-  # Authentication for admin UI
+  # Optional: Additional authentication for admin UI
+  # By default, the engine inherits from your AdminsController
+  # Use this if you need custom authentication logic
   config.authenticate_with do |controller|
-    # Example: use existing admin authorization
-    controller.send(:authorize_admin)
+    # Example: restrict to super admins only
+    controller.send(:require_super_admin!)
   end
 
   # Resolver for organization association (optional)
