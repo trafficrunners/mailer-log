@@ -133,12 +133,12 @@
       </div>
 
       <!-- Call Stack -->
-      <details v-if="email.call_stack" class="bg-white rounded-lg shadow">
+      <details v-if="email.call_stack?.length" class="bg-white rounded-lg shadow">
         <summary class="px-4 py-3 cursor-pointer text-md font-medium text-gray-900 hover:bg-gray-50">
           Call Stack
         </summary>
         <div class="px-4 pb-4">
-          <pre class="bg-gray-50 p-4 rounded-md text-xs overflow-auto max-h-64">{{ email.call_stack }}</pre>
+          <pre class="bg-gray-50 p-4 rounded-md text-xs overflow-auto max-h-64">{{ email.call_stack?.join('\n') }}</pre>
         </div>
       </details>
 

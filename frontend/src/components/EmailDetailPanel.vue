@@ -283,7 +283,7 @@
 
           <!-- Call Stack tab -->
           <div v-else-if="activeTab === 'stack'" class="h-full">
-            <pre class="m-0 p-4 text-xs bg-gray-50 overflow-auto h-full font-mono">{{ email.call_stack }}</pre>
+            <pre class="m-0 p-4 text-xs bg-gray-50 overflow-auto h-full font-mono">{{ email.call_stack?.join('\n') }}</pre>
           </div>
 
         </div>
@@ -323,7 +323,7 @@ const availableTabs = computed(() => {
     tabs.push({ id: 'events', label: 'Events', count: eventsCount || null })
   }
 
-  if (email.value?.call_stack) {
+  if (email.value?.call_stack?.length) {
     tabs.push({ id: 'stack', label: 'Call Stack' })
   }
 

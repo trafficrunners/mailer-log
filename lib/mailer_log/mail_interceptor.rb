@@ -93,7 +93,6 @@ module MailerLog
         caller.select { |line| line.include?(Rails.root.to_s) }
           .reject { |line| line.include?('mailer_log') }
           .first(depth)
-          .join("\n")
       end
     end
   end
