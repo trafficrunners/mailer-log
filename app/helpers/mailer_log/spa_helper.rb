@@ -2,10 +2,8 @@
 
 module MailerLog
   module SpaHelper
-    ASSET_PATH = '/mailer_log'
-
     def mailer_log_js_entry
-      return nil if vite_dev_server_running?
+      return nil if mailer_log_dev_server_url
 
       manifest = mailer_log_manifest
       return nil unless manifest
@@ -14,11 +12,11 @@ module MailerLog
       return nil unless entry
 
       file = entry.is_a?(Hash) ? entry['file'] : entry
-      "#{ASSET_PATH}/#{file}"
+      "#{asset_base_path}/#{file}"
     end
 
     def mailer_log_css_entry
-      return nil if vite_dev_server_running?
+      return nil if mailer_log_dev_server_url
 
       manifest = mailer_log_manifest
       return nil unless manifest
@@ -29,26 +27,41 @@ module MailerLog
       css_file = entry['css']&.first
       return nil unless css_file
 
-      "#{ASSET_PATH}/#{css_file}"
+      "#{asset_base_path}/#{css_file}"
     end
 
     def mailer_log_dev_server_url
-      return nil unless vite_dev_server_running?
+      return nil unless ENV['MAILER_LOG_DEV_SERVER_URL']
 
-      origin = defined?(ViteRuby) ? ViteRuby.config.origin : 'http://localhost:5173'
-      "#{origin}#{ASSET_PATH}"
+      "#{ENV['MAILER_LOG_DEV_SERVER_URL']}/mailer_log"
     end
 
     private
 
-    def vite_dev_server_running?
-      defined?(ViteRuby) && ViteRuby.instance.dev_server_running?
+    def asset_base_path
+      # In dev, middleware serves from gem's public dir at /mailer_log/
+      # In production, assets are copied to asset pipeline dir
+      if Rails.application.config.public_file_server.enabled
+        '/mailer_log'
+      else
+        "/#{asset_output_dir}/mailer_log"
+      end
+    end
+
+    def asset_output_dir
+      @asset_output_dir ||= if defined?(ViteRuby)
+        ViteRuby.config.public_output_dir
+      elsif defined?(Webpacker)
+        Webpacker.config.public_output_path.basename.to_s
+      else
+        'assets'
+      end
     end
 
     def mailer_log_manifest
       @mailer_log_manifest ||= begin
-        # Check Rails app's public (after assets:precompile or copied)
-        rails_manifest = Rails.root.join('public', 'mailer_log', '.vite', 'manifest.json')
+        # Check Rails app's asset output directory (after assets:precompile)
+        rails_manifest = Rails.root.join('public', asset_output_dir, 'mailer_log', '.vite', 'manifest.json')
         return JSON.parse(File.read(rails_manifest)) if File.exist?(rails_manifest)
 
         # Fallback to gem's built-in assets (served via middleware in dev)
