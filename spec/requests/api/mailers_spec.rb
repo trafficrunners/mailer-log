@@ -9,7 +9,7 @@ RSpec.describe MailerLog::Api::MailersController, type: :request do
 
   describe 'GET #index' do
     def do_request
-      get '/admin/email_log/api/mailers'
+      get '/admin/mailer-log/api/mailers'
     end
 
     context 'when no emails exist' do
@@ -63,7 +63,7 @@ RSpec.describe MailerLog::Api::MailersController, type: :request do
     before { sign_in(regular_user) }
 
     it 'denies access' do
-      get '/admin/email_log/api/mailers'
+      get '/admin/mailer-log/api/mailers'
 
       expect(response).to have_http_status(:found).or have_http_status(:forbidden)
     end

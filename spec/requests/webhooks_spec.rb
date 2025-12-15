@@ -45,7 +45,7 @@ RSpec.describe MailerLog::WebhooksController, type: :request do
     end
 
     def do_request(params = webhook_params)
-      post '/admin/email_log/webhooks/mailgun', params: params
+      post '/admin/mailer-log/webhooks/mailgun', params: params
     end
 
     context 'with valid signature' do

@@ -4,13 +4,15 @@ module MailerLog
   module SpaHelper
     def mailer_log_asset_path(name)
       manifest = mailer_log_manifest
-      return "/admin/email_log/assets/#{name}" unless manifest
+      base_path = request.script_name
+      return "#{base_path}/assets/#{name}" unless manifest
 
       entry = manifest[name] || manifest["src/#{name}"] || manifest["assets/#{name}"]
-      return "/admin/email_log/assets/#{name}" unless entry
+      return "#{base_path}/assets/#{name}" unless entry
 
       file = entry.is_a?(Hash) ? entry['file'] : entry
-      "/admin/email_log/assets/#{file}"
+      # Manifest paths already include 'assets/' prefix
+      "#{base_path}/#{file}"
     end
 
     def mailer_log_js_entry

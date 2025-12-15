@@ -8,6 +8,10 @@ import { existsSync } from 'fs'
 // e.g., MAILER_LOG_OVERRIDES_PATH=/path/to/app/mailer_log_overrides
 const overridesPath = process.env.MAILER_LOG_OVERRIDES_PATH
 
+// Mount path for assets - only needed if using non-default mount path
+// Router and API paths are configured at runtime via window.MAILER_LOG_CONFIG
+const mountPath = process.env.MAILER_LOG_MOUNT_PATH || '/admin/mailer-log'
+
 function resolveWithOverride(componentPath, defaultPath) {
   if (overridesPath) {
     const overridePath = resolve(overridesPath, componentPath)
@@ -20,7 +24,7 @@ function resolveWithOverride(componentPath, defaultPath) {
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/admin/email_log/assets/',
+  base: `${mountPath}/assets/`,
   resolve: {
     alias: {
       // Navbar can be overridden by placing AppNavbar.vue in overrides directory
@@ -49,7 +53,7 @@ export default defineConfig({
     cors: true,
     origin: 'http://localhost:5173',
     proxy: {
-      '/admin/email_log/api': {
+      [`${mountPath}/api`]: {
         target: 'http://localhost:3000',
         changeOrigin: true
       }

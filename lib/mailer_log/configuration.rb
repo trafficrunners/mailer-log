@@ -3,11 +3,10 @@
 module MailerLog
   class Configuration
     attr_accessor :retention_period,
-                  :webhook_signing_key,
-                  :capture_call_stack,
-                  :call_stack_depth,
-                  :admin_layout,
-                  :per_page
+      :webhook_signing_key,
+      :capture_call_stack,
+      :call_stack_depth,
+      :per_page
 
     attr_reader :authenticate_with_proc, :resolve_accountable_proc
 
@@ -16,7 +15,6 @@ module MailerLog
       @webhook_signing_key = nil
       @capture_call_stack = true
       @call_stack_depth = 20
-      @admin_layout = 'application'
       @per_page = 25
       @authenticate_with_proc = nil
       @resolve_accountable_proc = nil

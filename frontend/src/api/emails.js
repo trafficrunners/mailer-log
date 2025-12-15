@@ -1,4 +1,4 @@
-const API_BASE = '/admin/email_log/api'
+import { API_BASE } from '../config'
 
 export async function fetchEmails(params = {}) {
   const searchParams = new URLSearchParams()

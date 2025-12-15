@@ -13,7 +13,7 @@ RSpec.describe MailerLog::Api::EmailsController, type: :request do
     let!(:email3) { create(:mailer_log_email, subject: 'Invoice', to_addresses: ['billing@example.com'], created_at: 1.hour.ago) }
 
     def do_request(params = {})
-      get '/admin/email_log/api/emails', params: params
+      get '/admin/mailer-log/api/emails', params: params
     end
 
     it 'returns a successful JSON response' do
@@ -177,7 +177,7 @@ RSpec.describe MailerLog::Api::EmailsController, type: :request do
     let!(:event2) { create(:mailer_log_event, :opened, email: email, occurred_at: 30.minutes.ago) }
 
     def do_request
-      get "/admin/email_log/api/emails/#{email.id}"
+      get "/admin/mailer-log/api/emails/#{email.id}"
     end
 
     it 'returns a successful JSON response' do
@@ -232,7 +232,7 @@ RSpec.describe MailerLog::Api::EmailsController, type: :request do
 
     context 'when email not found' do
       it 'returns 404' do
-        get '/admin/email_log/api/emails/999999'
+        get '/admin/mailer-log/api/emails/999999'
 
         expect(response).to have_http_status(:not_found)
       end
@@ -246,14 +246,14 @@ RSpec.describe MailerLog::Api::EmailsController, type: :request do
     before { sign_in(regular_user) }
 
     it 'denies access to index' do
-      get '/admin/email_log/api/emails'
+      get '/admin/mailer-log/api/emails'
 
       expect(response).to have_http_status(:found).or have_http_status(:forbidden)
     end
 
     it 'denies access to show' do
       email = create(:mailer_log_email)
-      get "/admin/email_log/api/emails/#{email.id}"
+      get "/admin/mailer-log/api/emails/#{email.id}"
 
       expect(response).to have_http_status(:found).or have_http_status(:forbidden)
     end

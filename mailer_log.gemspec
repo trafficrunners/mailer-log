@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name = 'mailer-log'
   s.version = MailerLog::VERSION
   s.authors = ['TrafficRunners']
-  s.email = ['team@localviking.com']
+  s.email = ['sk@trafficrunners.net']
   s.summary = 'Rails engine for logging outgoing emails with Mailgun webhook integration'
   s.description = 'A Rails engine that captures all outgoing emails, stores them in PostgreSQL, ' \
                   'provides a Vue.js admin UI for browsing emails, and tracks delivery events via Mailgun webhooks.'

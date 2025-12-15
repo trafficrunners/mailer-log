@@ -12,13 +12,13 @@ Next steps:
 2. Add routes to config/routes.rb:
 
    Rails.application.routes.draw do
-     mount MailerLog::Engine, at: '/mailer_log'
+     mount MailerLog::Engine, at: '/admin/mailer-log'
    end
 
 3. Configure Mailgun webhooks (optional, for delivery tracking):
 
    - Go to Mailgun Dashboard -> Sending -> Webhooks
-   - Add webhook URL: https://your-app.com/mailer_log/webhooks/mailgun
+   - Add webhook URL: https://your-app.com/admin/mailer-log/webhooks/mailgun
    - Select events: delivered, opened, clicked, bounced, failed, complained
    - Copy webhook signing key to ENV['MAILGUN_WEBHOOK_SIGNING_KEY']
 
@@ -29,7 +29,7 @@ Next steps:
      cron: '0 3 * * *'
      class: MailerLog::CleanupJob
 
-5. Access admin UI at: /mailer_log/admin/emails
+5. Access admin UI at: /admin/mailer-log (or your configured mount_path)
 
 ===============================================================================
 

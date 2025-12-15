@@ -13,9 +13,6 @@ MailerLog.configure do |config|
   config.capture_call_stack = Rails.env.development? || Rails.env.staging?
   config.call_stack_depth = 20
 
-  # Layout for admin views (default: 'application')
-  config.admin_layout = 'application'
-
   # Records per page in admin UI (default: 25)
   config.per_page = 25
 

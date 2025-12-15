@@ -17,7 +17,7 @@ Rails engine for logging all outgoing emails with Mailgun webhook integration.
 ### 1. Add to Gemfile
 
 ```ruby
-gem 'mailer_log'
+gem 'mailer-log'
 ```
 
 ### 2. Run install generator
@@ -37,7 +37,7 @@ This will:
 ```ruby
 # config/routes.rb
 Rails.application.routes.draw do
-  mount MailerLog::Engine, at: '/mailer_log'
+  mount MailerLog::Engine, at: '/admin/mailer-log'
 end
 ```
 
@@ -82,6 +82,25 @@ MailerLog.configure do |config|
 end
 ```
 
+### Custom Mount Path
+
+By default, MailerLog is mounted at `/admin/mailer-log`. The engine automatically detects the mount path at runtime, so API calls and routing work correctly regardless of where you mount it.
+
+If you mount at a different path, you need to rebuild the frontend assets with the custom path:
+
+```ruby
+# config/routes.rb
+mount MailerLog::Engine, at: '/email-logs'
+```
+
+```bash
+# Rebuild with custom path
+cd /path/to/mailer-log/frontend
+MAILER_LOG_MOUNT_PATH=/email-logs npm run build
+```
+
+**Note:** The `MAILER_LOG_MOUNT_PATH` environment variable is only needed during the build process. At runtime, the engine detects the mount path automatically from Rails.
+
 ## Mailgun Webhook Setup
 
 ### 1. Get Webhook Signing Key
@@ -95,7 +114,7 @@ end
 
 1. In Mailgun Dashboard, go to **Webhooks**
 2. Add webhook for each event:
-   - URL: `https://your-app.com/admin/email_log/webhooks/mailgun`
+   - URL: `https://your-app.com/admin/mailer-log/webhooks/mailgun` (adjust path based on your mount_path)
    - Events: `delivered`, `opened`, `clicked`, `bounced`, `failed`, `dropped`, `complained`
 
 ### 3. For Each Domain
@@ -106,11 +125,12 @@ If using multiple domains (white-label), configure webhooks for each.
 
 ### Admin UI
 
-After installation, accessible at: `/admin/email_log/admin/emails`
+After installation, accessible at the mounted path (e.g., `/mailer_log` based on routes example above).
 
 **Features:**
 - List of all sent emails with pagination
-- Filtering by: recipient, sender, subject, mailer class, status, date
+- Filtering by: recipient, sender, subject, mailer class, status
+- Date range picker with presets (Today, This week, Last week, This month, Last month)
 - Email details view: headers, body preview, delivery events
 - Call stack view (where in code the email was triggered)
 
@@ -174,8 +194,21 @@ cleanup_mailer_log:
 | `webhook_signing_key` | `nil` | Key for Mailgun webhook verification |
 | `capture_call_stack` | `true` | Capture call stack |
 | `call_stack_depth` | `20` | Call stack depth |
-| `admin_layout` | `'application'` | Layout for admin views |
 | `per_page` | `25` | Records per page |
+
+## Using as letter_opener Replacement
+
+MailerLog can replace `letter_opener_web` for staging environments. Since MailerLog captures emails **before** delivery (via ActionMailer interceptor), you can use `:test` delivery method to prevent actual sending while still logging all emails.
+
+```ruby
+# config/environments/staging.rb
+Rails.application.configure do
+  # Use :test so emails are not sent, but MailerLog still captures them
+  config.action_mailer.delivery_method = :test
+end
+```
+
+This gives you a full email log UI with filtering, search, and body preview without sending real emails.
 
 ## Troubleshooting
 

@@ -5,17 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Log</title>
   <% if (css = mailer_log_css_entry) %>
-    <link rel="stylesheet" href="/admin/email_log/<%= css %>">
+    <link rel="stylesheet" href="<%= request.script_name %>/<%= css %>">
   <% else %>
     <script type="module" src="http://localhost:5173/@vite/client"></script>
   <% end %>
 </head>
 <body class="bg-gray-100 min-h-screen">
+  <script>
+    window.MAILER_LOG_CONFIG = {
+      mountPath: '<%= request.script_name %>'
+    };
+  </script>
   <div id="app"></div>
   <% if (js = mailer_log_js_entry) %>
-    <script type="module" src="/admin/email_log/<%= js %>"></script>
+    <script type="module" src="<%= request.script_name %>/<%= js %>"></script>
   <% else %>
-    <script type="module" src="http://localhost:5173/admin/email_log/assets/src/main.js"></script>
+    <script type="module" src="http://localhost:5173/src/main.js"></script>
   <% end %>
 </body>
 </html>
