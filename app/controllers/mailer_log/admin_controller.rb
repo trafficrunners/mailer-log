@@ -2,6 +2,9 @@
 
 module MailerLog
   class AdminController < ::AdminsController
+    # Make main app routes available in views (for header_partial)
+    helper Rails.application.routes.url_helpers
+
     before_action :authenticate_mailer_log!
 
     rescue_from 'Pundit::NotAuthorizedError', with: :render_not_found
