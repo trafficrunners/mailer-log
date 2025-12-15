@@ -8,9 +8,11 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Recipient</label>
             <input
               v-model="filters.recipient"
-              type="email"
+              type="text"
               placeholder="Email address"
               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              @keydown="(e) => console.log('keydown', e.key)"
+              @keyup.enter="applyFilters"
             >
           </div>
           <div>
@@ -20,6 +22,7 @@
               type="text"
               placeholder="From address"
               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              @keyup.enter="applyFilters"
             >
           </div>
           <div>
@@ -29,6 +32,7 @@
               type="text"
               placeholder="Subject contains..."
               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              @keyup.enter="applyFilters"
             >
           </div>
           <div>
@@ -237,6 +241,7 @@ async function loadMailers() {
 }
 
 function applyFilters() {
+  console.log('applyFilters called', filters)
   currentPage.value = 1
   updateUrl()
   loadEmails()

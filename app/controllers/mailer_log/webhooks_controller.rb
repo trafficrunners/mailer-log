@@ -83,14 +83,49 @@ module MailerLog
     end
 
     def create_event(email, event_data, normalized_event)
+      client_info = event_data['client-info'] || {}
+      geolocation = event_data['geolocation'] || {}
+      delivery_status = event_data['delivery-status'] || {}
+
       email.events.create!(
         event_type: normalized_event,
         mailgun_event_id: event_data['id'],
         occurred_at: extract_timestamp(event_data),
         recipient: event_data['recipient'],
         ip_address: event_data['ip'],
-        user_agent: event_data.dig('client-info', 'user-agent'),
-        raw_payload: event_data.to_unsafe_h
+        user_agent: client_info['user-agent'],
+        device_type: client_info['device-type'],
+        client_name: client_info['client-name'],
+        client_os: client_info['client-os'],
+        country: geolocation['country'],
+        region: geolocation['region'],
+        city: geolocation['city'],
+        url: event_data['url'],
+        raw_payload: {
+          event: event_data['event'],
+          tags: event_data['tags'],
+          campaigns: event_data['campaigns'],
+          delivery_status: {
+            code: delivery_status['code'],
+            message: delivery_status['message'],
+            description: delivery_status['description'],
+            mx_host: delivery_status['mx-host'],
+            attempt_no: delivery_status['attempt-no'],
+            session_seconds: delivery_status['session-seconds'],
+            utf8: delivery_status['utf8'],
+            tls: delivery_status['tls'],
+            certificate_verified: delivery_status['certificate-verified']
+          }.compact,
+          envelope: event_data['envelope'],
+          message: {
+            headers: event_data.dig('message', 'headers'),
+            size: event_data.dig('message', 'size')
+          }.compact,
+          flags: event_data['flags'],
+          severity: event_data['severity'],
+          reason: event_data['reason'],
+          log_level: event_data['log-level']
+        }.compact_blank
       )
     end
 

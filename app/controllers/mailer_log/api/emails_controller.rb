@@ -10,7 +10,10 @@ module MailerLog
         bounced_at created_at updated_at
       ].freeze
       BODY_ATTRIBUTES = %i[html_body text_body headers call_stack].freeze
-      EVENT_ATTRIBUTES = %i[id event_type occurred_at recipient ip_address user_agent].freeze
+      EVENT_ATTRIBUTES = %i[
+        id event_type occurred_at recipient ip_address user_agent
+        device_type client_name client_os country region city url raw_payload
+      ].freeze
 
       skip_before_action :verify_authenticity_token, only: [:index, :show]
 
@@ -31,7 +34,10 @@ module MailerLog
         email = MailerLog::Email.find(params[:id])
 
         render json: {
-          email: email_json(email, include_body: true, include_events: true)
+          email: email_json(email, include_body: true, include_events: true),
+          config: {
+            show_delivery_events: MailerLog.configuration.show_delivery_events?
+          }
         }
       end
 

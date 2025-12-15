@@ -26,26 +26,26 @@
         <div class="filters-grid">
           <div>
             <label class="filter-label">Recipient</label>
-            <input v-model="filters.recipient" type="email" placeholder="Email address" class="filter-input">
+            <input v-model="filters.recipient" type="text" placeholder="Email address" class="filter-input" @keyup.enter="applyFilters">
           </div>
           <div>
             <label class="filter-label">Sender</label>
-            <input v-model="filters.sender" type="text" placeholder="From address" class="filter-input">
+            <input v-model="filters.sender" type="text" placeholder="From address" class="filter-input" @keyup.enter="applyFilters">
           </div>
           <div>
             <label class="filter-label">Subject</label>
-            <input v-model="filters.subject_search" type="text" placeholder="Contains..." class="filter-input">
+            <input v-model="filters.subject_search" type="text" placeholder="Contains..." class="filter-input" @keyup.enter="applyFilters">
           </div>
           <div>
             <label class="filter-label">Mailer</label>
-            <select v-model="filters.mailer" class="filter-input">
+            <select v-model="filters.mailer" class="filter-input" @change="applyFilters">
               <option value="">All</option>
               <option v-for="mailer in mailers" :key="mailer" :value="mailer">{{ mailer }}</option>
             </select>
           </div>
           <div>
             <label class="filter-label">Status</label>
-            <select v-model="filters.status" class="filter-input">
+            <select v-model="filters.status" class="filter-input" @change="applyFilters">
               <option value="">All</option>
               <option v-for="status in statuses" :key="status" :value="status">{{ status }}</option>
             </select>
@@ -55,6 +55,8 @@
             <DateRangePicker
               v-model:date-from="filters.date_from"
               v-model:date-to="filters.date_to"
+              @update:date-from="applyFilters"
+              @update:date-to="applyFilters"
             />
           </div>
           <div class="filter-actions">

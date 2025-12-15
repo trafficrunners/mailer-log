@@ -18,12 +18,12 @@ module MailerLog
     scope :recent, -> { order(created_at: :desc) }
 
     # Scopes for filtering
-    scope :recipient, ->(email) { where('? = ANY(to_addresses)', email) }
+    scope :recipient, ->(val) { where("array_to_string(to_addresses, ',') ILIKE ?", "%#{val}%") }
     scope :sender, ->(val) { where('from_address ILIKE ?', "%#{val}%") }
     scope :subject_search, ->(val) { where('subject ILIKE ?', "%#{val}%") }
     scope :mailer, ->(val) { where(mailer_class: val) }
-    scope :date_from, ->(date) { where('created_at >= ?', date.to_date.beginning_of_day) }
-    scope :date_to, ->(date) { where('created_at <= ?', date.to_date.end_of_day) }
+    scope :date_from, ->(date) { where(created_at: date.to_date.beginning_of_day..) }
+    scope :date_to, ->(date) { where(created_at: ..date.to_date.end_of_day) }
 
     def update_status_from_event!(event_type)
       case event_type
