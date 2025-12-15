@@ -1,6 +1,6 @@
 <template>
   <div class="mailer-log-app">
-    <AppNavbar />
+    <AppNavbar v-if="!hideNavbar" />
     <main class="mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <router-view />
     </main>
@@ -8,7 +8,8 @@
 </template>
 
 <script setup>
-// This import uses an alias that can be overridden by host application
-// See vite.config.js for configuration
 import AppNavbar from '@mailer-log/navbar'
+
+const config = window.MAILER_LOG_CONFIG || {}
+const hideNavbar = config.hideNavbar || false
 </script>

@@ -1,38 +1,15 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
-import { existsSync } from 'fs'
 
-// Allow host application to override components
-// Set MAILER_LOG_OVERRIDES_PATH env var to point to overrides directory
-// e.g., MAILER_LOG_OVERRIDES_PATH=/path/to/app/mailer_log_overrides
-const overridesPath = process.env.MAILER_LOG_OVERRIDES_PATH
-
-// Mount path for assets - only needed if using non-default mount path
-// Router and API paths are configured at runtime via window.MAILER_LOG_CONFIG
 const mountPath = process.env.MAILER_LOG_MOUNT_PATH || '/admin/mailer-log'
-
-function resolveWithOverride(componentPath, defaultPath) {
-  if (overridesPath) {
-    const overridePath = resolve(overridesPath, componentPath)
-    if (existsSync(overridePath)) {
-      return overridePath
-    }
-  }
-  return defaultPath
-}
 
 export default defineConfig({
   plugins: [vue()],
   base: `${mountPath}/assets/`,
   resolve: {
     alias: {
-      // Navbar can be overridden by placing AppNavbar.vue in overrides directory
-      '@mailer-log/navbar': resolveWithOverride(
-        'AppNavbar.vue',
-        resolve(__dirname, 'src/components/AppNavbar.vue')
-      ),
-      // Add more overridable components here as needed
+      '@mailer-log/navbar': resolve(__dirname, 'src/components/AppNavbar.vue'),
       '@mailer-log': resolve(__dirname, 'src')
     }
   },

@@ -11,11 +11,16 @@
   <% end %>
 </head>
 <body class="bg-gray-100 min-h-screen">
+  <% header_partial = MailerLog.configuration.header_partial %>
   <script>
     window.MAILER_LOG_CONFIG = {
-      mountPath: '<%= request.script_name %>'
+      mountPath: '<%= request.script_name %>',
+      hideNavbar: <%= header_partial.present? %>
     };
   </script>
+  <% if header_partial %>
+    <%= render partial: header_partial %>
+  <% end %>
   <div id="app"></div>
   <% if (js = mailer_log_js_entry) %>
     <script type="module" src="<%= request.script_name %>/<%= js %>"></script>
