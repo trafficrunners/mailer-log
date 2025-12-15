@@ -36,7 +36,8 @@ module MailerLog
         render json: {
           email: email_json(email, include_body: true, include_events: true),
           config: {
-            show_delivery_events: MailerLog.configuration.show_delivery_events?
+            show_delivery_events: MailerLog.configuration.show_delivery_events?,
+            github_repo: MailerLog.configuration.github_repo
           }
         }
       end

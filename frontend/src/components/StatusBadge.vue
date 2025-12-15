@@ -1,6 +1,7 @@
 <template>
-  <span :class="badgeClasses">
-    {{ status }}
+  <span :class="badgeClasses" :title="status">
+    <template v-if="compact">{{ icon }}</template>
+    <template v-else>{{ status }}</template>
   </span>
 </template>
 
@@ -11,11 +12,30 @@ const props = defineProps({
   status: {
     type: String,
     required: true
+  },
+  compact: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const icon = computed(() => {
+  switch (props.status) {
+    case 'delivered': return '✓'
+    case 'opened': return '◉'
+    case 'clicked': return '↗'
+    case 'bounced': return '✗'
+    case 'complained': return '⚠'
+    case 'sent': return '→'
+    case 'pending':
+    default: return '○'
   }
 })
 
 const badgeClasses = computed(() => {
-  const base = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
+  const base = props.compact
+    ? 'inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-medium'
+    : 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
 
   switch (props.status) {
     case 'delivered':

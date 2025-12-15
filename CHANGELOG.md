@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2025-12-16
+
+### Added
+
+- Git revision capture for each email (from Capistrano REVISION file or `git rev-parse`)
+- `github_repo` configuration option for linking call stack lines to GitHub source
+- Clickable links in Call Stack tab that open source files on GitHub at the exact line
+
+### Changed
+
+- Improved Call Stack tab UI with card styling and parsed stack trace lines
+- Mobile-responsive email detail panel and email list
+
 ## [0.1.6] - 2025-12-15
 
 ### Added

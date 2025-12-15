@@ -70,6 +70,9 @@ MailerLog.configure do |config|
   # Capture call stack (useful for debugging)
   config.capture_call_stack = Rails.env.development?
 
+  # GitHub repo for linking call stack to source code
+  config.github_repo = 'your-org/your-repo'
+
   # Optional: Additional authentication for admin UI
   # config.authenticate_with do |controller|
   #   controller.send(:require_super_admin!)
@@ -195,6 +198,7 @@ cleanup_mailer_log:
 | `capture_call_stack` | `true` | Capture call stack |
 | `call_stack_depth` | `20` | Call stack depth |
 | `per_page` | `25` | Records per page |
+| `github_repo` | `nil` | GitHub repo (e.g., `owner/repo`) for linking call stack to source |
 
 ## Using as letter_opener Replacement
 

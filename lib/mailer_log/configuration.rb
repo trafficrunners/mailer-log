@@ -8,7 +8,8 @@ module MailerLog
       :call_stack_depth,
       :per_page,
       :header_partial,
-      :show_delivery_events
+      :show_delivery_events,
+      :github_repo
 
     attr_reader :authenticate_with_proc, :resolve_accountable_proc
 
@@ -20,6 +21,7 @@ module MailerLog
       @per_page = 25
       @header_partial = nil # e.g., 'shared/admin_navbar'
       @show_delivery_events = nil # nil = auto (true if webhook_signing_key present)
+      @github_repo = nil # e.g., 'trafficrunners/gmbmanager' for GitHub links in call stack
       @authenticate_with_proc = nil
       @resolve_accountable_proc = nil
     end

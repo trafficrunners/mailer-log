@@ -130,18 +130,21 @@
 
           <!-- Desktop: Table layout -->
           <div class="hidden md:block flex-1 overflow-auto">
-          <table class="w-full text-[13px]">
+          <table class="w-full text-[13px] table-fixed">
             <thead class="sticky top-0 bg-gray-50 z-10">
               <tr>
                 <th
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
                   @click="header.column.getToggleSortingHandler()?.($event)"
-                  class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-200 whitespace-nowrap"
-                  :class="{
-                    'cursor-pointer select-none hover:bg-gray-100': header.column.getCanSort(),
-                    'text-blue-500': header.column.getIsSorted()
-                  }"
+                  class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-200 whitespace-nowrap first:pl-3 last:pr-3"
+                  :class="[
+                    header.column.columnDef.meta?.className,
+                    {
+                      'cursor-pointer select-none hover:bg-gray-100': header.column.getCanSort(),
+                      'text-blue-500': header.column.getIsSorted()
+                    }
+                  ]"
                 >
                   <div class="flex items-center gap-1">
                     <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
@@ -160,7 +163,7 @@
                 class="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
                 :class="{ 'bg-blue-50': row.original.id === selectedEmailId }"
               >
-                <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-3 py-2 text-gray-700 max-w-[200px] truncate">
+                <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-2 py-2 text-gray-700 first:pl-3 last:pr-3" :class="cell.column.columnDef.meta?.className">
                   <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                 </td>
               </tr>
@@ -247,11 +250,32 @@ const activeFilterCount = computed(() => {
 
 const columnHelper = createColumnHelper()
 
-const columns = [
+const isCompact = computed(() => !!selectedEmailId.value)
+
+const columns = computed(() => [
+  columnHelper.accessor('status', {
+    header: '',
+    cell: info => h(StatusBadge, {
+      status: info.getValue(),
+      compact: isCompact.value
+    }),
+    meta: { className: isCompact.value ? 'w-[32px]' : 'w-[90px]' },
+    enableSorting: true
+  }),
   columnHelper.accessor('created_at', {
     header: 'Date',
-    cell: info => formatDate(info.getValue()),
-    size: 140
+    cell: info => h('span', { class: 'whitespace-nowrap' }, formatDate(info.getValue())),
+    meta: { className: 'w-[120px]' }
+  }),
+  columnHelper.accessor(row => row.to_addresses?.join(', '), {
+    id: 'to',
+    header: 'To',
+    cell: info => h('span', { class: 'block truncate', title: info.getValue() }, info.getValue()),
+    meta: { className: 'w-[180px] max-w-[180px]' }
+  }),
+  columnHelper.accessor('subject', {
+    header: 'Subject',
+    cell: info => h('span', { class: 'block truncate' }, info.getValue() || '(no subject)')
   }),
   columnHelper.accessor('mailer_class', {
     header: 'Mailer',
@@ -259,32 +283,18 @@ const columns = [
       const row = info.row.original
       const mailer = info.getValue()
       const action = row.mailer_action && row.mailer_action !== 'unknown' ? `#${row.mailer_action}` : ''
-      return h('div', { class: 'flex flex-col gap-0.5' }, [
-        h('code', { class: 'text-xs bg-gray-100 px-1 rounded' }, mailer),
+      return h('div', { class: 'flex flex-col gap-0.5 items-start' }, [
+        h('code', { class: 'text-xs bg-gray-100 px-1 rounded inline-block' }, mailer),
         action ? h('span', { class: 'text-[11px] text-gray-500' }, action) : null
       ])
     },
-    size: 180
-  }),
-  columnHelper.accessor(row => row.to_addresses?.join(', '), {
-    id: 'to',
-    header: 'To',
-    size: 200
-  }),
-  columnHelper.accessor('subject', {
-    header: 'Subject',
-    cell: info => info.getValue() || '(no subject)'
-  }),
-  columnHelper.accessor('status', {
-    header: 'Status',
-    cell: info => h(StatusBadge, { status: info.getValue() }),
-    size: 100
+    meta: { className: 'w-[180px]' }
   })
-]
+])
 
 const table = useVueTable({
   get data() { return emails.value },
-  columns,
+  get columns() { return columns.value },
   state: {
     get sorting() { return sorting.value }
   },

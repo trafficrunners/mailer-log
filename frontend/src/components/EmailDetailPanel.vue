@@ -283,15 +283,39 @@
 
           <!-- Call Stack tab -->
           <div v-else-if="activeTab === 'stack'" class="h-full bg-gray-50 overflow-auto p-3">
+            <!-- Revision -->
             <div v-if="email.git_revision" class="mb-3 flex items-center gap-2 text-xs">
               <span class="text-gray-500">Revision:</span>
-              <code class="bg-gray-200 px-2 py-0.5 rounded font-mono">{{ email.git_revision }}</code>
+              <a
+                v-if="config?.github_repo"
+                :href="`https://github.com/${config.github_repo}/commit/${email.git_revision}`"
+                target="_blank"
+                class="bg-gray-200 px-2 py-0.5 rounded font-mono text-blue-600 hover:text-blue-800 hover:bg-blue-100 no-underline"
+              >{{ email.git_revision }}</a>
+              <code v-else class="bg-gray-200 px-2 py-0.5 rounded font-mono">{{ email.git_revision }}</code>
             </div>
             <div class="bg-white border border-gray-200 rounded-md overflow-hidden">
-              <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-600">
-                Call Stack
+              <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-600 flex justify-between items-center">
+                <span>Call Stack</span>
+                <code v-if="railsRoot" class="text-gray-400 font-normal">{{ railsRoot }}</code>
               </div>
-              <pre class="m-0 p-3 text-xs overflow-auto font-mono text-gray-700 leading-relaxed">{{ email.call_stack?.join('\n') }}</pre>
+              <div class="text-xs font-mono leading-relaxed overflow-auto">
+                <template v-for="(line, index) in parsedCallStack" :key="index">
+                  <a
+                    v-if="line.url"
+                    :href="line.url"
+                    target="_blank"
+                    class="block px-3 py-1 text-gray-700 no-underline hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                  >
+                    <span class="text-blue-600">{{ line.file }}:{{ line.line }}</span>
+                    <span class="text-gray-400">{{ line.method }}</span>
+                  </a>
+                  <div v-else class="px-3 py-1 text-gray-700">
+                    <span>{{ line.file }}:{{ line.line }}</span>
+                    <span class="text-gray-400">{{ line.method }}</span>
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
 
@@ -346,6 +370,53 @@ const filteredHeaders = computed(() => {
   return Object.entries(email.value.headers).filter(
     ([key]) => !HIDDEN_HEADERS.includes(key.toLowerCase())
   )
+})
+
+// Extract Rails root from call stack (e.g., /Users/sk/projects/app from /Users/sk/projects/app/app/mailers/foo.rb)
+const railsRoot = computed(() => {
+  if (!email.value?.call_stack?.length) return null
+
+  for (const line of email.value.call_stack) {
+    const match = line.match(/^(.+)\/(app|lib|config)\//)
+    if (match) {
+      return match[1]
+    }
+  }
+  return null
+})
+
+const parsedCallStack = computed(() => {
+  if (!email.value?.call_stack?.length) return []
+
+  const githubRepo = config.value?.github_repo
+  const gitRevision = email.value?.git_revision
+
+  return email.value.call_stack.map(line => {
+    // Parse format: /path/to/file.rb:123:in `method_name' or /path/to/file.rb:123:in 'method_name':
+    const match = line.match(/^(.+):(\d+):in [`'](.+)['']:?$/)
+    if (!match) {
+      return { file: line, line: '', method: '', url: null }
+    }
+
+    const [, filePath, lineNum, methodName] = match
+
+    // Extract relative path from Rails root (app/, lib/, config/)
+    const relativeMatch = filePath.match(/((?:app|lib|config)\/.+)$/)
+    const relativePath = relativeMatch ? relativeMatch[1] : filePath
+
+    // Build GitHub URL if repo and revision are configured
+    let url = null
+    if (githubRepo && gitRevision && relativeMatch) {
+      url = `https://github.com/${githubRepo}/blob/${gitRevision}/${relativePath}#L${lineNum}`
+    }
+
+    return {
+      file: relativePath,
+      line: lineNum,
+      method: `:in '${methodName}'`,
+      url
+    }
+  })
 })
 
 function formatDate(dateString) {
