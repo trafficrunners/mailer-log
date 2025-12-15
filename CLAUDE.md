@@ -112,3 +112,50 @@ has_scope :by_status, as: :status      # uses param :status
 - Request specs for API and controller actions
 - Unit specs for complex business logic
 - Run tests before committing to ensure they pass
+
+---
+
+## Frontend SPA (Vue 3 + Vite)
+
+### Stack
+- **Vue 3** with Composition API (`<script setup>`)
+- **Vite** for bundling
+- **Tailwind CSS** for styling (use responsive utilities!)
+- **TanStack Table** for data tables
+- **VueUse** for composables
+
+### Directory Structure
+```
+frontend/
+├── src/
+│   ├── api/          # API calls (fetchEmails, etc.)
+│   ├── assets/       # CSS
+│   ├── components/   # Reusable components
+│   ├── views/        # Page components
+│   └── main.js       # Entry point
+├── tailwind.config.js
+└── vite.config.js
+```
+
+### Development
+```bash
+cd frontend
+npm run dev   # Start dev server (port 5173)
+npm run build # Build to ../public/mailer_log/
+```
+
+### Host App Integration
+- Set `MAILER_LOG_DEV_SERVER_URL=http://localhost:5173` for dev
+- Assets served from `/mailer_log/` in production
+- Overrides: `app/javascript/mailer_log_overrides/` in host app
+
+### Mobile Responsiveness (TODO)
+Current issues:
+- Nested scrolls: container → table-wrapper → detail panel
+- Split layout doesn't work on mobile
+- Table columns don't fit
+
+Plan:
+- **Mobile (< 768px)**: Single scroll, detail as fullscreen overlay, cards instead of table
+- **Tablet/Desktop (≥ 768px)**: Current split layout with full table
+- Use Tailwind responsive utilities (`md:`, `lg:`, etc.)
