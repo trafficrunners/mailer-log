@@ -9,7 +9,7 @@ module MailerLog
         subject domain status delivered_at opened_at clicked_at
         bounced_at created_at updated_at
       ].freeze
-      BODY_ATTRIBUTES = %i[html_body text_body headers call_stack].freeze
+      BODY_ATTRIBUTES = %i[html_body text_body headers call_stack git_revision].freeze
       EVENT_ATTRIBUTES = %i[
         id event_type occurred_at recipient ip_address user_agent
         device_type client_name client_os country region city url raw_payload

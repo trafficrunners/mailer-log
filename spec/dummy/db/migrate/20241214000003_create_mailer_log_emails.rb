@@ -16,6 +16,7 @@ class CreateMailerLogEmails < ActiveRecord::Migration[7.0]
       t.text :text_body
       t.jsonb :headers, default: {}
       t.text :call_stack, array: true, default: []
+      t.string :git_revision
       t.string :domain
       t.string :status, default: 'pending'
       t.references :accountable, polymorphic: true

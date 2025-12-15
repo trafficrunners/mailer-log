@@ -16,6 +16,7 @@ class CreateMailerLogTables < ActiveRecord::Migration[<%= ActiveRecord::Migratio
       t.text :text_body
       t.jsonb :headers, default: {}
       t.text :call_stack
+      t.string :git_revision
       t.string :domain
       t.references :accountable, polymorphic: true, index: true
       t.string :status, null: false, default: 'pending'

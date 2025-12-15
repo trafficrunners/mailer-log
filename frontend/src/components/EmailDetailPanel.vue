@@ -282,8 +282,17 @@
           </div>
 
           <!-- Call Stack tab -->
-          <div v-else-if="activeTab === 'stack'" class="h-full">
-            <pre class="m-0 p-4 text-xs bg-gray-50 overflow-auto h-full font-mono">{{ email.call_stack?.join('\n') }}</pre>
+          <div v-else-if="activeTab === 'stack'" class="h-full bg-gray-50 overflow-auto p-3">
+            <div v-if="email.git_revision" class="mb-3 flex items-center gap-2 text-xs">
+              <span class="text-gray-500">Revision:</span>
+              <code class="bg-gray-200 px-2 py-0.5 rounded font-mono">{{ email.git_revision }}</code>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-md overflow-hidden">
+              <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 text-xs font-medium text-gray-600">
+                Call Stack
+              </div>
+              <pre class="m-0 p-3 text-xs overflow-auto font-mono text-gray-700 leading-relaxed">{{ email.call_stack?.join('\n') }}</pre>
+            </div>
           </div>
 
         </div>

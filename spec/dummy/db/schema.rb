@@ -28,6 +28,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_14_000004) do
     t.text "text_body"
     t.jsonb "headers", default: {}
     t.text "call_stack", default: [], array: true
+    t.string "git_revision"
     t.string "domain"
     t.string "status", default: "pending"
     t.string "accountable_type"

@@ -23,6 +23,7 @@ module MailerLog
           text_body: extract_text_body(message),
           headers: extract_headers(message),
           call_stack: capture_call_stack,
+          git_revision: capture_git_revision,
           domain: message[:domain]&.value
         }
       rescue StandardError => e
@@ -95,6 +96,19 @@ module MailerLog
         caller.select { |line| app_paths.any? { |path| line.include?(path) } }
           .reject { |line| line.include?('mailer_log') }
           .first(depth)
+      end
+
+      def capture_git_revision
+        @git_revision ||= begin
+          # Try Capistrano REVISION file first
+          revision_file = Rails.root.join('REVISION')
+          return File.read(revision_file).strip if File.exist?(revision_file)
+
+          # Fallback to git command (development)
+          return nil unless File.directory?(Rails.root.join('.git'))
+
+          `git rev-parse --short HEAD 2>/dev/null`.strip.presence
+        end
       end
     end
   end
