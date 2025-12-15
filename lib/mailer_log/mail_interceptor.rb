@@ -90,7 +90,9 @@ module MailerLog
         return nil unless MailerLog.configuration.capture_call_stack
 
         depth = MailerLog.configuration.call_stack_depth || 20
-        caller.select { |line| line.include?(Rails.root.to_s) }
+        app_paths = %w[app lib config].map { |dir| "#{Rails.root}/#{dir}/" }
+
+        caller.select { |line| app_paths.any? { |path| line.include?(path) } }
           .reject { |line| line.include?('mailer_log') }
           .first(depth)
       end
