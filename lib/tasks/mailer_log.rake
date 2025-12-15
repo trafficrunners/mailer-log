@@ -102,9 +102,19 @@ namespace :mailer_log do
   end
 end
 
-# Hook into assets:precompile to automatically copy MailerLog assets
+# Hook into assets:precompile to automatically build (if source available) and copy MailerLog assets
 if Rake::Task.task_defined?('assets:precompile')
   Rake::Task['assets:precompile'].enhance do
+    frontend_dir = MailerLog::Engine.root.join('frontend')
+    overrides_path = ENV['MAILER_LOG_OVERRIDES_PATH'] ||
+                     Rails.root.join('app', 'javascript', 'mailer_log_overrides').then { |p| p.exist? ? p.to_s : nil }
+
+    if frontend_dir.exist? && overrides_path
+      puts "Building MailerLog frontend with overrides from: #{overrides_path}"
+      ENV['MAILER_LOG_OVERRIDES_PATH'] = overrides_path
+      Rake::Task['mailer_log:build_frontend'].invoke
+    end
+
     Rake::Task['mailer_log:install_assets'].invoke
   end
 end
