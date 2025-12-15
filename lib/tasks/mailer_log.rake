@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
 namespace :mailer_log do
+  desc 'Copy MailerLog assets to public/ (run after assets:precompile)'
+  task :install_assets do
+    source = MailerLog::Engine.root.join('public', 'mailer_log')
+    destination = Rails.root.join('public', 'mailer_log')
+
+    unless source.exist?
+      puts "ERROR: MailerLog assets not found at #{source}"
+      exit 1
+    end
+
+    FileUtils.rm_rf(destination) if destination.exist?
+    FileUtils.cp_r(source, destination)
+    puts "MailerLog assets copied to #{destination}"
+  end
+
   desc 'Build MailerLog Vue.js frontend (set MAILER_LOG_OVERRIDES_PATH to customize components)'
   task :build_frontend do
     frontend_dir = MailerLog::Engine.root.join('frontend')
@@ -39,6 +54,19 @@ namespace :mailer_log do
     puts 'Frontend built successfully!'
   end
 
+  desc 'Build frontend with overrides and copy to host app public/'
+  task build_and_install: :environment do
+    frontend_dir = MailerLog::Engine.root.join('frontend')
+    overrides_path = ENV['MAILER_LOG_OVERRIDES_PATH']
+
+    if frontend_dir.exist? && overrides_path
+      puts "Building MailerLog frontend with overrides..."
+      Rake::Task['mailer_log:build_frontend'].invoke
+    end
+
+    Rake::Task['mailer_log:install_assets'].invoke
+  end
+
   desc 'Start Vite development server for MailerLog frontend'
   task :dev_server do
     frontend_dir = MailerLog::Engine.root.join('frontend')
@@ -71,5 +99,12 @@ namespace :mailer_log do
 
     env = overrides_path ? { 'MAILER_LOG_OVERRIDES_PATH' => overrides_path } : {}
     exec(env, 'npm run dev', chdir: frontend_dir.to_s)
+  end
+end
+
+# Hook into assets:precompile to automatically copy MailerLog assets
+if Rake::Task.task_defined?('assets:precompile')
+  Rake::Task['assets:precompile'].enhance do
+    Rake::Task['mailer_log:install_assets'].invoke
   end
 end
