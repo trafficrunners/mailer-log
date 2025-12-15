@@ -10,10 +10,7 @@ MailerLog::Engine.routes.draw do
     resources :mailers, only: :index
   end
 
-  # Static assets for Vue SPA
-  get 'assets/*path', to: 'assets#show', as: :asset, format: false
-
-  # SPA catch-all - serves Vue app for all other routes
-  get '/', to: 'spa#index'
-  get '/*path', to: 'spa#index', constraints: ->(req) { !req.path.start_with?('/api', '/webhooks', '/assets') }
+  # SPA catch-all - serves Vue app for all routes
+  get '*path', to: 'spa#index'
+  root to: 'spa#index'
 end

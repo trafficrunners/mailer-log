@@ -29,6 +29,20 @@ module MailerLog
       g.factory_bot dir: 'spec/factories'
     end
 
+    # Serve gem's static assets in development
+    # In production, assets are copied via rake task and served by nginx
+    initializer 'mailer_log.static_assets' do |app|
+      next unless app.config.public_file_server.enabled
+
+      gem_public = MailerLog::Engine.root.join('public').to_s
+      app.middleware.insert_before(
+        ActionDispatch::Static,
+        ActionDispatch::Static,
+        gem_public,
+        headers: { 'Cache-Control' => 'public, max-age=31536000' }
+      )
+    end
+
     # Load rake tasks
     rake_tasks do
       load MailerLog::Engine.root.join('lib', 'tasks', 'mailer_log.rake')

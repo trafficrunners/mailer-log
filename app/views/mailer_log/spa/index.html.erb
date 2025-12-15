@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Log</title>
-  <% if (css = mailer_log_css_entry) %>
-    <link rel="stylesheet" href="<%= request.script_name %>/<%= css %>">
-  <% else %>
-    <script type="module" src="http://localhost:5173/@vite/client"></script>
+  <% if (dev_url = mailer_log_dev_server_url) %>
+    <script type="module" src="<%= dev_url %>/@vite/client"></script>
+  <% elsif (css = mailer_log_css_entry) %>
+    <link rel="stylesheet" href="<%= css %>">
   <% end %>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -22,10 +22,10 @@
     <%= render partial: header_partial %>
   <% end %>
   <div id="app"></div>
-  <% if (js = mailer_log_js_entry) %>
-    <script type="module" src="<%= request.script_name %>/<%= js %>"></script>
-  <% else %>
-    <script type="module" src="http://localhost:5173/src/main.js"></script>
+  <% if (dev_url = mailer_log_dev_server_url) %>
+    <script type="module" src="<%= dev_url %>/src/main.js"></script>
+  <% elsif (js = mailer_log_js_entry) %>
+    <script type="module" src="<%= js %>"></script>
   <% end %>
 </body>
 </html>

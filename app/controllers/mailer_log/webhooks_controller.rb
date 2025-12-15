@@ -5,7 +5,7 @@ module MailerLog
     skip_before_action :verify_authenticity_token
 
     before_action :verify_signature
-    before_action :deduplicate_event
+    before_action :handle_deduplicate_event
 
     # POST /mailer_log/webhooks/mailgun
     def mailgun
@@ -55,12 +55,11 @@ module MailerLog
       head :unauthorized
     end
 
-    def deduplicate_event
+    def handle_deduplicate_event
       event_id = params.dig('event-data', 'id')
       return true unless event_id
 
       cache_key = "mailer_log:event:#{event_id}"
-
       if Rails.cache.exist?(cache_key)
         head :ok
         return false

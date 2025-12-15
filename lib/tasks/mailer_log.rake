@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :mailer_log do
-  desc 'Copy MailerLog assets to public/'
+  desc 'Copy MailerLog assets to public/mailer_log/'
   task install_assets: :environment do
     source = MailerLog::Engine.root.join('public', 'mailer_log')
     destination = Rails.root.join('public', 'mailer_log')
