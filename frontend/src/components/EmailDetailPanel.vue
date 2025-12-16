@@ -95,7 +95,7 @@
 
       <!-- Tabs -->
       <div class="flex flex-col flex-1 min-h-0">
-        <div class="flex gap-1 px-4 pt-2 border-b border-gray-200 flex-shrink-0 overflow-x-auto">
+        <div class="flex gap-1 px-4 pt-2 border-b border-gray-200 flex-shrink-0">
           <button
             v-for="tab in availableTabs"
             :key="tab.id"

@@ -11,7 +11,7 @@ import { computed } from 'vue'
 const props = defineProps({
   status: {
     type: String,
-    required: true
+    default: 'pending'
   },
   compact: {
     type: Boolean,

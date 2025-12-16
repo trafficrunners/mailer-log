@@ -82,51 +82,53 @@ module MailerLog
       Email.find_by(tracking_id: tracking_id) if tracking_id.present?
     end
 
+    CLIENT_INFO_ATTRS = %w[user-agent device-type client-name client-os].freeze
+    GEOLOCATION_ATTRS = %w[country region city].freeze
+    DELIVERY_STATUS_ATTRS = %w[code message description mx-host attempt-no session-seconds utf8 tls certificate-verified].freeze
+
     def create_event(email, event_data, normalized_event)
       client_info = event_data['client-info'] || {}
       geolocation = event_data['geolocation'] || {}
-      delivery_status = event_data['delivery-status'] || {}
 
-      email.events.create!(
+      attrs = {
         event_type: normalized_event,
         mailgun_event_id: event_data['id'],
         occurred_at: extract_timestamp(event_data),
         recipient: event_data['recipient'],
         ip_address: event_data['ip'],
-        user_agent: client_info['user-agent'],
-        device_type: client_info['device-type'],
-        client_name: client_info['client-name'],
-        client_os: client_info['client-os'],
-        country: geolocation['country'],
-        region: geolocation['region'],
-        city: geolocation['city'],
         url: event_data['url'],
-        raw_payload: {
-          event: event_data['event'],
-          tags: event_data['tags'],
-          campaigns: event_data['campaigns'],
-          delivery_status: {
-            code: delivery_status['code'],
-            message: delivery_status['message'],
-            description: delivery_status['description'],
-            mx_host: delivery_status['mx-host'],
-            attempt_no: delivery_status['attempt-no'],
-            session_seconds: delivery_status['session-seconds'],
-            utf8: delivery_status['utf8'],
-            tls: delivery_status['tls'],
-            certificate_verified: delivery_status['certificate-verified']
-          }.compact,
-          envelope: event_data['envelope'],
-          message: {
-            headers: event_data.dig('message', 'headers'),
-            size: event_data.dig('message', 'size')
-          }.compact,
-          flags: event_data['flags'],
-          severity: event_data['severity'],
-          reason: event_data['reason'],
-          log_level: event_data['log-level']
-        }.compact_blank
-      )
+        raw_payload: build_raw_payload(event_data, client_info, geolocation)
+      }
+
+      attrs.merge!(underscored_slice(client_info, CLIENT_INFO_ATTRS))
+      attrs.merge!(underscored_slice(geolocation, GEOLOCATION_ATTRS))
+
+      email.events.create!(attrs)
+    end
+
+    def underscored_slice(source, keys)
+      return {} if source.blank?
+
+      source.slice(*keys).transform_keys { |k| k.underscore.to_sym }
+    end
+
+    def build_raw_payload(event_data, client_info, geolocation)
+      delivery_status = event_data['delivery-status']
+
+      {
+        event: event_data['event'],
+        tags: event_data['tags'],
+        campaigns: event_data['campaigns'],
+        client_info: client_info.presence,
+        geolocation: geolocation.presence,
+        delivery_status: underscored_slice(delivery_status, DELIVERY_STATUS_ATTRS).presence,
+        envelope: event_data['envelope'],
+        message: event_data['message']&.slice('headers', 'size'),
+        flags: event_data['flags'],
+        severity: event_data['severity'],
+        reason: event_data['reason'],
+        log_level: event_data['log-level']
+      }.compact_blank
     end
 
     def normalize_event_type(mailgun_event)
