@@ -90,10 +90,45 @@
         class="bg-white rounded-lg shadow-sm flex flex-col min-h-0"
         :class="selectedEmailId ? 'hidden md:flex md:w-[350px] lg:w-[450px] flex-shrink-0' : 'flex-1'"
       >
-        <div class="px-4 py-3 border-b border-gray-200 flex-shrink-0">
+        <div class="px-4 py-3 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
           <h2 class="text-base font-semibold text-gray-900">
             Emails <span class="text-gray-400">({{ totalCount }})</span>
           </h2>
+          <!-- Column visibility dropdown -->
+          <div v-if="!isCompact" ref="columnMenuRef" class="relative">
+            <button
+              @click="showColumnMenu = !showColumnMenu"
+              class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              title="Configure columns"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+              </svg>
+            </button>
+            <div
+              v-if="showColumnMenu"
+              class="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1 min-w-[160px]"
+            >
+              <div class="px-3 py-1.5 text-xs font-medium text-gray-500 uppercase border-b border-gray-100">
+                Columns
+              </div>
+              <label
+                v-for="col in columnConfig"
+                :key="col.id"
+                class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50"
+                :class="col.alwaysVisible ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'"
+              >
+                <input
+                  type="checkbox"
+                  :checked="columnVisibility[col.id]"
+                  :disabled="col.alwaysVisible"
+                  @change="toggleColumn(col.id)"
+                  class="rounded border-gray-300 text-blue-500 focus:ring-blue-500 disabled:opacity-50"
+                >
+                <span class="text-sm text-gray-700">{{ col.label }}</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div v-if="loading" class="p-8 text-center text-gray-500">Loading...</div>
@@ -160,10 +195,10 @@
                 v-for="row in table.getRowModel().rows"
                 :key="row.id"
                 @click="selectEmail(row.original.id)"
-                class="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+                class="cursor-pointer border-b border-gray-100 hover:bg-gray-50 h-[52px]"
                 :class="{ 'bg-blue-50': row.original.id === selectedEmailId }"
               >
-                <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-2 py-2 text-gray-700 first:pl-3 last:pr-3" :class="cell.column.columnDef.meta?.className">
+                <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-2 py-2 text-gray-700 first:pl-3 last:pr-3 align-middle" :class="cell.column.columnDef.meta?.className">
                   <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                 </td>
               </tr>
@@ -204,9 +239,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch, h } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useLocalStorage } from '@vueuse/core'
+import { useLocalStorage, onClickOutside } from '@vueuse/core'
 import {
   useVueTable,
   createColumnHelper,
@@ -230,7 +265,42 @@ const totalPages = ref(1)
 const currentPage = ref(1)
 const selectedEmailId = ref(null)
 const showFilters = useLocalStorage('mailer-log-filters-visible', true)
+const showColumnMenu = ref(false)
 const sorting = ref([{ id: 'created_at', desc: true }])
+
+// Column visibility config
+const columnConfig = [
+  { id: 'status', label: 'Status', alwaysVisible: true },
+  { id: 'created_at', label: 'Date' },
+  { id: 'to', label: 'To' },
+  { id: 'subject', label: 'Subject' },
+  { id: 'mailer_class', label: 'Mailer' }
+]
+
+const defaultVisibility = {
+  status: true,
+  created_at: true,
+  to: true,
+  subject: true,
+  mailer_class: true
+}
+
+const columnVisibility = useLocalStorage('mailer-log-column-visibility', defaultVisibility)
+
+function toggleColumn(columnId) {
+  const col = columnConfig.find(c => c.id === columnId)
+  if (col?.alwaysVisible) return
+  columnVisibility.value = {
+    ...columnVisibility.value,
+    [columnId]: !columnVisibility.value[columnId]
+  }
+}
+
+// Close column menu when clicking outside
+const columnMenuRef = ref(null)
+onClickOutside(columnMenuRef, () => {
+  showColumnMenu.value = false
+})
 
 const statuses = ['pending', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained']
 
@@ -252,11 +322,11 @@ const columnHelper = createColumnHelper()
 
 const isCompact = computed(() => !!selectedEmailId.value)
 
-// In compact mode show only first 3 columns: Status, Date, To
-const columns = computed(() => {
+// All column definitions
+const allColumnDefs = computed(() => {
   const compact = isCompact.value
-  const cols = [
-    columnHelper.accessor('status', {
+  return {
+    status: columnHelper.accessor('status', {
       header: '',
       cell: info => h(StatusBadge, {
         status: info.getValue(),
@@ -265,42 +335,50 @@ const columns = computed(() => {
       meta: { className: compact ? 'w-[32px]' : 'w-[90px]' },
       enableSorting: true
     }),
-    columnHelper.accessor('created_at', {
+    created_at: columnHelper.accessor('created_at', {
       header: 'Date',
       cell: info => h('span', { class: 'whitespace-nowrap' }, formatDate(info.getValue())),
       meta: { className: 'w-[120px]' }
     }),
-    columnHelper.accessor(row => row.to_addresses?.join(', '), {
+    to: columnHelper.accessor(row => row.to_addresses?.join(', '), {
       id: 'to',
       header: 'To',
       cell: info => h('span', { class: 'block truncate', title: info.getValue() }, info.getValue()),
       meta: { className: 'w-[180px] max-w-[180px]' }
+    }),
+    subject: columnHelper.accessor('subject', {
+      header: 'Subject',
+      cell: info => h('span', { class: 'block truncate' }, info.getValue() || '(no subject)')
+    }),
+    mailer_class: columnHelper.accessor('mailer_class', {
+      header: 'Mailer',
+      cell: info => {
+        const row = info.row.original
+        const mailer = info.getValue()
+        const action = row.mailer_action && row.mailer_action !== 'unknown' ? `#${row.mailer_action}` : ''
+        return h('div', { class: 'flex flex-col gap-0.5 items-start' }, [
+          h('code', { class: 'text-xs bg-gray-100 px-1 rounded inline-block' }, mailer),
+          action ? h('span', { class: 'text-[11px] text-gray-500' }, action) : null
+        ])
+      },
+      meta: { className: 'w-[180px]' }
     })
-  ]
-
-  if (!compact) {
-    cols.push(
-      columnHelper.accessor('subject', {
-        header: 'Subject',
-        cell: info => h('span', { class: 'block truncate' }, info.getValue() || '(no subject)')
-      }),
-      columnHelper.accessor('mailer_class', {
-        header: 'Mailer',
-        cell: info => {
-          const row = info.row.original
-          const mailer = info.getValue()
-          const action = row.mailer_action && row.mailer_action !== 'unknown' ? `#${row.mailer_action}` : ''
-          return h('div', { class: 'flex flex-col gap-0.5 items-start' }, [
-            h('code', { class: 'text-xs bg-gray-100 px-1 rounded inline-block' }, mailer),
-            action ? h('span', { class: 'text-[11px] text-gray-500' }, action) : null
-          ])
-        },
-        meta: { className: 'w-[180px]' }
-      })
-    )
   }
+})
 
-  return cols
+// In compact mode show only first 3 visible columns
+const columns = computed(() => {
+  const compact = isCompact.value
+  const defs = allColumnDefs.value
+  const visibility = columnVisibility.value
+
+  // Filter columns based on visibility settings
+  const visibleCols = columnConfig
+    .filter(col => visibility[col.id])
+    .map(col => defs[col.id])
+
+  // In compact mode, show only first 3 columns
+  return compact ? visibleCols.slice(0, 3) : visibleCols
 })
 
 const table = useVueTable({
