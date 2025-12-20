@@ -252,45 +252,56 @@ const columnHelper = createColumnHelper()
 
 const isCompact = computed(() => !!selectedEmailId.value)
 
-const columns = computed(() => [
-  columnHelper.accessor('status', {
-    header: '',
-    cell: info => h(StatusBadge, {
-      status: info.getValue(),
-      compact: isCompact.value
+// In compact mode show only first 3 columns: Status, Date, To
+const columns = computed(() => {
+  const compact = isCompact.value
+  const cols = [
+    columnHelper.accessor('status', {
+      header: '',
+      cell: info => h(StatusBadge, {
+        status: info.getValue(),
+        compact
+      }),
+      meta: { className: compact ? 'w-[32px]' : 'w-[90px]' },
+      enableSorting: true
     }),
-    meta: { className: isCompact.value ? 'w-[32px]' : 'w-[90px]' },
-    enableSorting: true
-  }),
-  columnHelper.accessor('created_at', {
-    header: 'Date',
-    cell: info => h('span', { class: 'whitespace-nowrap' }, formatDate(info.getValue())),
-    meta: { className: 'w-[120px]' }
-  }),
-  columnHelper.accessor(row => row.to_addresses?.join(', '), {
-    id: 'to',
-    header: 'To',
-    cell: info => h('span', { class: 'block truncate', title: info.getValue() }, info.getValue()),
-    meta: { className: 'w-[180px] max-w-[180px]' }
-  }),
-  columnHelper.accessor('subject', {
-    header: 'Subject',
-    cell: info => h('span', { class: 'block truncate' }, info.getValue() || '(no subject)')
-  }),
-  columnHelper.accessor('mailer_class', {
-    header: 'Mailer',
-    cell: info => {
-      const row = info.row.original
-      const mailer = info.getValue()
-      const action = row.mailer_action && row.mailer_action !== 'unknown' ? `#${row.mailer_action}` : ''
-      return h('div', { class: 'flex flex-col gap-0.5 items-start' }, [
-        h('code', { class: 'text-xs bg-gray-100 px-1 rounded inline-block' }, mailer),
-        action ? h('span', { class: 'text-[11px] text-gray-500' }, action) : null
-      ])
-    },
-    meta: { className: 'w-[180px]' }
-  })
-])
+    columnHelper.accessor('created_at', {
+      header: 'Date',
+      cell: info => h('span', { class: 'whitespace-nowrap' }, formatDate(info.getValue())),
+      meta: { className: 'w-[120px]' }
+    }),
+    columnHelper.accessor(row => row.to_addresses?.join(', '), {
+      id: 'to',
+      header: 'To',
+      cell: info => h('span', { class: 'block truncate', title: info.getValue() }, info.getValue()),
+      meta: { className: 'w-[180px] max-w-[180px]' }
+    })
+  ]
+
+  if (!compact) {
+    cols.push(
+      columnHelper.accessor('subject', {
+        header: 'Subject',
+        cell: info => h('span', { class: 'block truncate' }, info.getValue() || '(no subject)')
+      }),
+      columnHelper.accessor('mailer_class', {
+        header: 'Mailer',
+        cell: info => {
+          const row = info.row.original
+          const mailer = info.getValue()
+          const action = row.mailer_action && row.mailer_action !== 'unknown' ? `#${row.mailer_action}` : ''
+          return h('div', { class: 'flex flex-col gap-0.5 items-start' }, [
+            h('code', { class: 'text-xs bg-gray-100 px-1 rounded inline-block' }, mailer),
+            action ? h('span', { class: 'text-[11px] text-gray-500' }, action) : null
+          ])
+        },
+        meta: { className: 'w-[180px]' }
+      })
+    )
+  }
+
+  return cols
+})
 
 const table = useVueTable({
   get data() { return emails.value },
