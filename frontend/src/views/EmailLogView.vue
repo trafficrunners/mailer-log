@@ -90,7 +90,7 @@
         class="bg-white rounded-lg shadow-sm flex flex-col min-h-0"
         :class="selectedEmailId ? 'hidden md:flex md:w-[350px] lg:w-[450px] flex-shrink-0' : 'flex-1'"
       >
-        <div class="px-4 py-3 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
+        <div class="px-4 py-2 border-b border-gray-200 flex-shrink-0 flex items-center justify-between">
           <h2 class="text-base font-semibold text-gray-900">
             Emails <span class="text-gray-400">({{ totalCount }})</span>
           </h2>
@@ -231,7 +231,7 @@
           v-if="selectedEmailId"
           class="fixed inset-0 z-50 bg-white md:relative md:inset-auto md:z-auto md:flex-1 md:min-w-0 md:rounded-lg md:shadow-sm flex flex-col"
         >
-          <EmailDetailPanel :id="selectedEmailId" @close="selectedEmailId = null" />
+          <EmailDetailPanel :id="selectedEmailId" @close="closeEmail" />
         </div>
       </Transition>
     </div>
@@ -472,6 +472,11 @@ function loadFromUrl() {
 
 function selectEmail(id) {
   selectedEmailId.value = id
+  updateUrl()
+}
+
+function closeEmail() {
+  selectedEmailId.value = null
   updateUrl()
 }
 
