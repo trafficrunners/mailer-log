@@ -44,15 +44,15 @@ module MailerLog
       if Rails.application.config.public_file_server.enabled
         '/mailer_log'
       else
-        "/#{asset_output_dir}/mailer_log"
+        "/#{assets_dir}/mailer_log"
       end
     end
 
-    def asset_output_dir
-      @asset_output_dir ||= if defined?(ViteRuby)
-        ViteRuby.config.public_output_dir
+    def assets_dir
+      @assets_dir ||= if defined?(ViteRuby)
+        File.join(ViteRuby.config.public_output_dir, ViteRuby.config.assets_dir)
       elsif defined?(Webpacker)
-        Webpacker.config.public_output_path.basename.to_s
+        File.join(Webpacker.config.public_output_path.basename.to_s, 'assets')
       else
         'assets'
       end
@@ -61,7 +61,7 @@ module MailerLog
     def mailer_log_manifest
       @mailer_log_manifest ||= begin
         # Check Rails app's asset output directory (after assets:precompile)
-        rails_manifest = Rails.root.join('public', asset_output_dir, 'mailer_log', '.vite', 'manifest.json')
+        rails_manifest = Rails.root.join('public', assets_dir, 'mailer_log', '.vite', 'manifest.json')
         return JSON.parse(File.read(rails_manifest)) if File.exist?(rails_manifest)
 
         # Fallback to gem's built-in assets (served via middleware in dev)

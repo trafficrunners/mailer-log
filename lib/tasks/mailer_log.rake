@@ -5,16 +5,16 @@ namespace :mailer_log do
   task install_assets: :environment do
     source = MailerLog::Engine.root.join('public', 'mailer_log')
 
-    # Detect asset output directory from ViteRuby or Webpacker
-    output_dir = if defined?(ViteRuby)
-      ViteRuby.config.public_output_dir
+    # Detect asset output directory from ViteRuby, Webpacker, or default to Sprockets
+    assets_dir = if defined?(ViteRuby)
+      File.join(ViteRuby.config.public_output_dir, ViteRuby.config.assets_dir)
     elsif defined?(Webpacker)
-      Webpacker.config.public_output_path.basename.to_s
+      File.join(Webpacker.config.public_output_path.basename.to_s, 'assets')
     else
       'assets'
     end
 
-    destination = Rails.root.join('public', output_dir, 'mailer_log')
+    destination = Rails.root.join('public', assets_dir, 'mailer_log')
 
     unless source.exist?
       puts "ERROR: MailerLog assets not found at #{source}"
