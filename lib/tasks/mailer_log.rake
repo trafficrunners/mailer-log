@@ -9,7 +9,7 @@ namespace :mailer_log do
     assets_dir = if defined?(ViteRuby)
       File.join(ViteRuby.config.public_output_dir, ViteRuby.config.assets_dir)
     elsif defined?(Webpacker)
-      File.join(Webpacker.config.public_output_path.basename.to_s, 'assets')
+      File.join(Webpacker.config.public_output_path.basename.to_s)
     else
       'assets'
     end

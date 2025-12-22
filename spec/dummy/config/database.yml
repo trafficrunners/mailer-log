@@ -1,5 +1,12 @@
-test:
+default: &default
   adapter: postgresql
-  database: mailer_log_test
   host: localhost
   pool: 5
+
+development:
+  <<: *default
+  database: mailer_log_development
+
+test:
+  <<: *default
+  database: mailer_log_test
