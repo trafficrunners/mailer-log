@@ -29,6 +29,7 @@ module MailerLog
       rescue StandardError => e
         Rails.logger.error("MailerLog::MailInterceptor error: #{e.message}")
         Rails.logger.error(e.backtrace.first(5).join("\n"))
+        Airbrake.notify(e) if defined?(Airbrake)
       end
 
       private
@@ -38,6 +39,9 @@ module MailerLog
         return message['X-Mailer']&.to_s || 'Unknown' unless handler
 
         handler.is_a?(Class) ? handler.name : handler.class.name
+      rescue StandardError => e
+        Rails.logger.warn("MailerLog: Failed to extract mailer class: #{e.message}")
+        'Unknown'
       end
 
       def extract_mailer_action(message)
@@ -54,6 +58,9 @@ module MailerLog
         else
           'unknown'
         end
+      rescue StandardError => e
+        Rails.logger.warn("MailerLog: Failed to extract mailer action: #{e.message}")
+        'unknown'
       end
 
       def extract_html_body(message)
@@ -96,6 +103,9 @@ module MailerLog
         caller.select { |line| app_paths.any? { |path| line.include?(path) } }
           .reject { |line| line.include?('mailer_log') }
           .first(depth)
+      rescue StandardError => e
+        Rails.logger.warn("MailerLog: Failed to capture call stack: #{e.message}")
+        nil
       end
 
       def capture_git_revision
@@ -109,6 +119,9 @@ module MailerLog
 
           `git rev-parse --short HEAD 2>/dev/null`.strip.presence
         end
+      rescue StandardError => e
+        Rails.logger.warn("MailerLog: Failed to capture git revision: #{e.message}")
+        nil
       end
     end
   end
