@@ -9,7 +9,7 @@ module MailerLog
 
     # POST /mailer_log/webhooks/mailgun
     def mailgun
-      event_data = params['event-data'] || params
+      event_data = (params['event-data'] || params).to_unsafe_h.with_indifferent_access
 
       email = find_email(event_data)
       unless email

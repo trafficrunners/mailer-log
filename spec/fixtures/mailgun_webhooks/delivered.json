@@ -1,0 +1,50 @@
+{
+  "event-data": {
+    "timestamp": 1771269957.6545484,
+    "tags": [],
+    "delivery-status": {
+      "code": 250,
+      "enhanced-code": "2.0.0",
+      "attempt-no": 1,
+      "tls": true,
+      "utf8": true,
+      "mx-host": "aspmx.l.google.com",
+      "description": "",
+      "message": "2.0.0 OK 1771269957 gsmtp",
+      "certificate-verified": true,
+      "first-delivery-attempt-seconds": 0.076,
+      "session-seconds": 0.604
+    },
+    "id": "Ly4Z1mUpTFCXNyDPUJ0K2w",
+    "envelope": {
+      "targets": "user@example.com",
+      "sender": "noreply@mail.example.com",
+      "transport": "smtp",
+      "sending-ip": "192.0.2.60"
+    },
+    "recipient-provider": "Google Workspace",
+    "message": {
+      "size": 10875,
+      "headers": {
+        "subject": "Reset password instructions",
+        "message-id": "test-message-id@example.mail",
+        "to": "user@example.com",
+        "from": "noreply@mail.example.com"
+      },
+      "attachments": []
+    },
+    "recipient": "user@example.com",
+    "event": "delivered",
+    "campaigns": [],
+    "user-variables": {},
+    "recipient-domain": "example.com",
+    "log-level": "info",
+    "primary-dkim": "pdk1._domainkey.mail.example.com",
+    "flags": {
+      "is-authenticated": true,
+      "is-system-test": false,
+      "is-test-mode": false,
+      "is-routed": false
+    }
+  }
+}

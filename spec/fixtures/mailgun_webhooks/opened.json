@@ -1,0 +1,35 @@
+{
+  "event-data": {
+    "campaigns": [],
+    "event": "opened",
+    "delivered-at": 1771269957,
+    "ip": "198.51.100.163",
+    "tags": [],
+    "user-variables": {},
+    "id": "343N5JbIQ4CtAYg8tejVEw",
+    "recipient": "user@example.com",
+    "log-level": "info",
+    "message": {
+      "headers": {
+        "message-id": "test-message-id@example.mail"
+      }
+    },
+    "client-info": {
+      "device-type": "desktop",
+      "bot": "",
+      "client-os": "Windows",
+      "client-name": "GmailImageProxy",
+      "client-type": "unknown",
+      "user-agent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)"
+    },
+    "recipient-provider": "Google Workspace",
+    "geolocation": {
+      "region": "CA",
+      "country": "US",
+      "timezone": "America/Los_Angeles",
+      "city": "San Francisco"
+    },
+    "recipient-domain": "example.com",
+    "timestamp": 1771270051.0682824
+  }
+}
