@@ -113,16 +113,39 @@ MAILER_LOG_MOUNT_PATH=/email-logs npm run build
 3. Copy the **HTTP webhook signing key**
 4. Add to ENV: `MAILGUN_WEBHOOK_SIGNING_KEY=your_key_here`
 
-### 2. Configure Webhook URL
+### 2. Configure Webhooks via Rake Task
 
-1. In Mailgun Dashboard, go to **Webhooks**
+The easiest way to set up webhooks is using the provided rake task:
+
+```bash
+rake "mailer_log:create_webhooks[example.com,https://your-app.com/admin/mailer-log/webhooks/mailgun]"
+```
+
+This requires `mailgun_api_key` in configuration:
+
+```ruby
+MailerLog.configure do |config|
+  config.mailgun_api_key = ENV['MAILGUN_API_KEY']
+end
+```
+
+The task will create webhooks for all supported events (`delivered`, `opened`, `clicked`, `permanent_fail`, `temporary_fail`, `complained`, `unsubscribed`) and skip any that already exist.
+
+For multiple domains, run the task once per domain:
+
+```bash
+rake "mailer_log:create_webhooks[example.com,https://your-app.com/admin/mailer-log/webhooks/mailgun]"
+rake "mailer_log:create_webhooks[another.com,https://your-app.com/admin/mailer-log/webhooks/mailgun]"
+```
+
+### 3. Manual Webhook Setup (Alternative)
+
+You can also configure webhooks manually in the [Mailgun Dashboard](https://app.mailgun.com/):
+
+1. Go to **Sending** → **Webhooks**
 2. Add webhook for each event:
-   - URL: `https://your-app.com/admin/mailer-log/webhooks/mailgun` (adjust path based on your mount_path)
+   - URL: `https://your-app.com/admin/mailer-log/webhooks/mailgun` (adjust path based on your mount path)
    - Events: `delivered`, `opened`, `clicked`, `bounced`, `failed`, `dropped`, `complained`
-
-### 3. For Each Domain
-
-If using multiple domains (white-label), configure webhooks for each.
 
 ## Usage
 
@@ -195,6 +218,7 @@ cleanup_mailer_log:
 |-----------|---------|-------------|
 | `retention_period` | `1.year` | Email retention period |
 | `webhook_signing_key` | `nil` | Key for Mailgun webhook verification |
+| `mailgun_api_key` | `nil` | Mailgun API key (for `create_webhooks` rake task) |
 | `capture_call_stack` | `true` | Capture call stack |
 | `call_stack_depth` | `20` | Call stack depth |
 | `per_page` | `25` | Records per page |

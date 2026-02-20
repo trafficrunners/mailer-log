@@ -9,6 +9,9 @@ MailerLog.configure do |config|
   # Get it from: Mailgun Dashboard -> Sending -> Webhooks -> HTTP webhook signing key
   config.webhook_signing_key = ENV['MAILGUN_WEBHOOK_SIGNING_KEY']
 
+  # Mailgun API key (used by create_webhooks rake task)
+  # config.mailgun_api_key = ENV['MAILGUN_API_KEY']
+
   # Capture call stack to see where emails were triggered from (default: true)
   config.capture_call_stack = Rails.env.development? || Rails.env.staging?
   config.call_stack_depth = 20

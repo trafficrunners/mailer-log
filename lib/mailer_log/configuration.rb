@@ -4,6 +4,7 @@ module MailerLog
   class Configuration
     attr_accessor :retention_period,
       :webhook_signing_key,
+      :mailgun_api_key,
       :capture_call_stack,
       :call_stack_depth,
       :per_page,
@@ -16,6 +17,7 @@ module MailerLog
     def initialize
       @retention_period = 1.year
       @webhook_signing_key = nil
+      @mailgun_api_key = nil
       @capture_call_stack = true
       @call_stack_depth = 20
       @per_page = 25
