@@ -28,7 +28,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3 pt-3">
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">Recipient</label>
-            <input v-model="filters.recipient" type="text" placeholder="Email address"
+            <input ref="recipientInput" v-model="filters.recipient" type="text" placeholder="Email address"
               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none"
               @keyup.enter="applyFilters">
           </div>
@@ -141,6 +141,7 @@
               <div
                 v-for="email in emails"
                 :key="email.id"
+                :data-email-id="email.id"
                 @click="selectEmail(email.id)"
                 class="p-4 hover:bg-gray-50 cursor-pointer"
                 :class="{ 'bg-blue-50': email.id === selectedEmailId }"
@@ -194,6 +195,7 @@
               <tr
                 v-for="row in table.getRowModel().rows"
                 :key="row.id"
+                :data-email-id="row.original.id"
                 @click="selectEmail(row.original.id)"
                 class="cursor-pointer border-b border-gray-100 hover:bg-gray-50 h-[52px]"
                 :class="{ 'bg-blue-50': row.original.id === selectedEmailId }"
@@ -239,7 +241,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, h } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useLocalStorage, onClickOutside } from '@vueuse/core'
 import {
@@ -264,6 +266,7 @@ const totalCount = ref(0)
 const totalPages = ref(1)
 const currentPage = ref(1)
 const selectedEmailId = ref(null)
+const recipientInput = ref(null)
 const showFilters = useLocalStorage('mailer-log-filters-visible', true)
 const showColumnMenu = ref(false)
 const sorting = ref([{ id: 'created_at', desc: true }])
@@ -480,10 +483,59 @@ function closeEmail() {
   updateUrl()
 }
 
+// Keyboard navigation
+function isInputFocused() {
+  const el = document.activeElement
+  return el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')
+}
+
+function navigateEmail(direction) {
+  const idx = emails.value.findIndex(e => e.id === selectedEmailId.value)
+  const newIdx = idx + direction
+  if (newIdx < 0 || newIdx >= emails.value.length) return
+  selectEmail(emails.value[newIdx].id)
+  nextTick(() => {
+    const row = document.querySelector(`[data-email-id="${emails.value[newIdx].id}"]`)
+    row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  })
+}
+
+function handleKeydown(e) {
+  if (e.key === 'Escape' && selectedEmailId.value) {
+    closeEmail()
+    return
+  }
+
+  if (selectedEmailId.value && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    e.preventDefault()
+    navigateEmail(e.key === 'ArrowDown' ? 1 : -1)
+    return
+  }
+
+  if (isInputFocused()) return
+
+  if (e.key === 'ArrowLeft' && currentPage.value > 1) {
+    goToPage(currentPage.value - 1)
+  } else if (e.key === 'ArrowRight' && currentPage.value < totalPages.value) {
+    goToPage(currentPage.value + 1)
+  }
+
+  if (e.key === 'f') {
+    e.preventDefault()
+    showFilters.value = true
+    nextTick(() => recipientInput.value?.focus())
+  }
+}
+
 onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
   loadFromUrl()
   loadMailers()
   loadEmails()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
