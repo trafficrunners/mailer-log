@@ -236,6 +236,28 @@
           <EmailDetailPanel :id="selectedEmailId" @close="closeEmail" />
         </div>
       </Transition>
+
+      <!-- Keyboard shortcuts hint (shown once) -->
+      <Transition name="hint">
+        <div
+          v-if="showShortcutsHint"
+          class="fixed bottom-4 right-4 z-[60] max-w-xs bg-gray-800 text-white rounded-lg shadow-lg p-4 text-sm"
+        >
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <span class="font-medium">Keyboard shortcuts</span>
+            <button @click="dismissShortcutsHint" class="text-gray-400 hover:text-white flex-shrink-0">&times;</button>
+          </div>
+          <ul class="space-y-1 text-gray-300 text-xs">
+            <li><kbd class="kbd">↑</kbd> <kbd class="kbd">↓</kbd> Previous / next email</li>
+            <li><kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd> Previous / next page</li>
+            <li><kbd class="kbd">Esc</kbd> Close preview</li>
+            <li><kbd class="kbd">f</kbd> Focus search</li>
+          </ul>
+          <button @click="dismissShortcutsHint" class="mt-3 w-full text-xs text-center text-gray-400 hover:text-white">
+            Got it
+          </button>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -267,6 +289,8 @@ const totalPages = ref(1)
 const currentPage = ref(1)
 const selectedEmailId = ref(null)
 const recipientInput = ref(null)
+const shortcutsHintDismissed = useLocalStorage('mailer-log-shortcuts-hint-dismissed', false)
+const showShortcutsHint = ref(false)
 const showFilters = useLocalStorage('mailer-log-filters-visible', true)
 const showColumnMenu = ref(false)
 const sorting = ref([{ id: 'created_at', desc: true }])
@@ -478,8 +502,16 @@ function loadFromUrl() {
 }
 
 function selectEmail(id) {
+  if (!shortcutsHintDismissed.value && !selectedEmailId.value) {
+    showShortcutsHint.value = true
+  }
   selectedEmailId.value = id
   updateUrl()
+}
+
+function dismissShortcutsHint() {
+  showShortcutsHint.value = false
+  shortcutsHintDismissed.value = true
 }
 
 function closeEmail() {
@@ -564,5 +596,29 @@ onUnmounted(() => {
   .slide-leave-to {
     transform: translateX(20px);
   }
+}
+.hint-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.hint-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.hint-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.hint-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  min-width: 20px;
+  text-align: center;
 }
 </style>
