@@ -317,8 +317,10 @@ const filters = reactive({
   date_to: ''
 })
 
+const appliedFilters = ref({})
+
 const activeFilterCount = computed(() => {
-  return Object.values(filters).filter(v => v).length
+  return Object.values(appliedFilters.value).filter(v => v).length
 })
 
 const columnHelper = createColumnHelper()
@@ -441,6 +443,7 @@ async function loadMailers() {
 }
 
 function applyFilters() {
+  appliedFilters.value = { ...filters }
   currentPage.value = 1
   loadEmails()
   updateUrl()
@@ -470,6 +473,7 @@ function loadFromUrl() {
   Object.keys(filters).forEach(key => {
     if (route.query[key]) filters[key] = route.query[key]
   })
+  appliedFilters.value = { ...filters }
   if (route.query.email) selectedEmailId.value = parseInt(route.query.email, 10)
 }
 
