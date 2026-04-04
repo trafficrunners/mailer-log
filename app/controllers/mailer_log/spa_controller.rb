@@ -4,7 +4,7 @@ module MailerLog
   class SpaController < MailerLog::AdminController
     helper MailerLog::SpaHelper
 
-    layout false
+    layout -> { MailerLog.configuration.spa_layout || false }
 
     def index
       render :index

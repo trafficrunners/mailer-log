@@ -9,6 +9,7 @@ module MailerLog
       :call_stack_depth,
       :per_page,
       :header_partial,
+      :spa_layout,
       :show_delivery_events,
       :github_repo
 
@@ -22,6 +23,7 @@ module MailerLog
       @call_stack_depth = 20
       @per_page = 25
       @header_partial = nil # e.g., 'shared/admin_navbar'
+      @spa_layout = nil # e.g., 'application' — when set, SPA renders inside host app layout
       @show_delivery_events = nil # nil = auto (true if webhook_signing_key present)
       @github_repo = nil # e.g., 'trafficrunners/gmbmanager' for GitHub links in call stack
       @authenticate_with_proc = nil
