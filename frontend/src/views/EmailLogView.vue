@@ -385,12 +385,12 @@ const allColumnDefs = computed(() => {
         const row = info.row.original
         const mailer = info.getValue()
         const action = row.mailer_action && row.mailer_action !== 'unknown' ? `#${row.mailer_action}` : ''
-        return h('div', { class: 'flex flex-col gap-0.5 items-start' }, [
-          h('code', { class: 'text-xs bg-gray-100 px-1 rounded inline-block' }, mailer),
-          action ? h('span', { class: 'text-[11px] text-gray-500' }, action) : null
+        return h('div', { class: 'truncate' }, [
+          h('span', { class: 'text-xs font-medium' }, mailer),
+          action ? h('div', { class: 'text-[11px] text-gray-400' }, action) : null
         ])
       },
-      meta: { className: 'w-[180px]' }
+      meta: { className: 'w-[200px]' }
     })
   }
 })
