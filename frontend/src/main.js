@@ -15,6 +15,21 @@ const router = createRouter({
   routes
 })
 
-const app = createApp(App)
-app.use(router)
-app.mount('#app')
+function mountApp() {
+  const el = document.getElementById('app')
+  if (el) {
+    const app = createApp(App)
+    app.use(router)
+    app.mount(el)
+    return true
+  }
+  return false
+}
+
+// #app may be created async by host app's styxie — wait for it
+if (!mountApp()) {
+  const observer = new MutationObserver(() => {
+    if (mountApp()) observer.disconnect()
+  })
+  observer.observe(document.body, { childList: true, subtree: true })
+}
