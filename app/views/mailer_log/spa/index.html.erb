@@ -1,7 +1,26 @@
 <% host_layout = MailerLog.configuration.spa_layout.present? %>
 <% header_partial = MailerLog.configuration.header_partial %>
 
-<% unless host_layout %>
+<% if host_layout %>
+  <% content_for :head do %>
+    <% if (dev_url = mailer_log_dev_server_url) %>
+      <script type="module" src="<%= dev_url %>/@vite/client"></script>
+    <% elsif (css = mailer_log_css_entry) %>
+      <link rel="stylesheet" href="<%= css %>">
+    <% end %>
+    <script>
+      window.MAILER_LOG_CONFIG = {
+        mountPath: '<%= request.script_name %>',
+        hideNavbar: true
+      };
+    </script>
+    <% if (dev_url = mailer_log_dev_server_url) %>
+      <script type="module" src="<%= dev_url %>/src/main.js"></script>
+    <% elsif (js = mailer_log_js_entry) %>
+      <script type="module" src="<%= js %>"></script>
+    <% end %>
+  <% end %>
+<% else %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,36 +34,21 @@
   <% end %>
 </head>
 <body class="bg-gray-100 min-h-screen">
-<% end %>
-
-<% if host_layout %>
-  <% if (dev_url = mailer_log_dev_server_url) %>
-    <script type="module" src="<%= dev_url %>/@vite/client"></script>
-  <% elsif (css = mailer_log_css_entry) %>
-    <link rel="stylesheet" href="<%= css %>">
+  <script>
+    window.MAILER_LOG_CONFIG = {
+      mountPath: '<%= request.script_name %>',
+      hideNavbar: <%= header_partial.present? %>
+    };
+  </script>
+  <% if header_partial %>
+    <%= render partial: header_partial %>
   <% end %>
-<% end %>
-
-<script>
-  window.MAILER_LOG_CONFIG = {
-    mountPath: '<%= request.script_name %>',
-    hideNavbar: <%= header_partial.present? || host_layout %>
-  };
-</script>
-
-<% if header_partial %>
-  <%= render partial: header_partial %>
-<% end %>
-
-<div id="app"></div>
-
-<% if (dev_url = mailer_log_dev_server_url) %>
-  <script type="module" src="<%= dev_url %>/src/main.js"></script>
-<% elsif (js = mailer_log_js_entry) %>
-  <script type="module" src="<%= js %>"></script>
-<% end %>
-
-<% unless host_layout %>
+  <div id="app"></div>
+  <% if (dev_url = mailer_log_dev_server_url) %>
+    <script type="module" src="<%= dev_url %>/src/main.js"></script>
+  <% elsif (js = mailer_log_js_entry) %>
+    <script type="module" src="<%= js %>"></script>
+  <% end %>
 </body>
 </html>
 <% end %>
